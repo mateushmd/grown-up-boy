@@ -84,7 +84,7 @@ namespace emulator::components
         Bus &bus;
 
         bool cbFlag;
-        int state;
+        States state;
 
         byte fetched;
 
