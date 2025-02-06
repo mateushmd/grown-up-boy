@@ -5,20 +5,60 @@
 
 namespace logger
 {
-    inline auto message(std::string message)
+    enum class LogLevel
     {
-        std::cout << message << std::endl;
-    }
+        MESSAGE,
+        WARNING,
+        ERROR,
+        DEBUG
+    };
 
-    inline auto warning(std::string message)
+    class Logger
     {
-    }
+    private:
+        LogLevel level;
+        std::ostream &out;
 
-    inline auto error(std::string message)
-    {
-    }
+        static constexpr const char *RESET = "\033[0m";
+        static constexpr const char *WHITE = "\033[97m";
+        static constexpr const char *ORANGE = "\033[33m";
+        static constexpr const char *RED = "\033[31m";
+        static constexpr const char *BLUE = "\033[34m";
 
-    inline auto debug(std::string messsage)
-    {
-    }
+    public:
+        Logger(LogLevel lvl, std::ostream &stream = std::cout) : level(lvl), out(stream) {}
+
+        template <typename T>
+        Logger &operator<<(const T &msg)
+        {
+            switch (level)
+            {
+            case LogLevel::MESSAGE:
+                out << WHITE;
+                break;
+            case LogLevel::WARNING:
+                out << ORANGE;
+                break;
+            case LogLevel::ERROR:
+                out << RED;
+                break;
+            case LogLevel::DEBUG:
+                out << BLUE;
+                break;
+            }
+            out << msg;
+            return *this;
+        }
+
+        Logger &operator<<(std::ostream &(*manip)(std::ostream &))
+        {
+            out << RESET << manip;
+            return *this;
+        }
+    };
+
+    inline Logger message(LogLevel::MESSAGE);
+    inline Logger warning(LogLevel::WARNING);
+    inline Logger error(LogLevel::ERROR);
+    inline Logger debug(LogLevel::DEBUG);
 }

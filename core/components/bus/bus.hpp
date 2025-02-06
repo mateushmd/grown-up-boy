@@ -3,6 +3,7 @@
 #include <string>
 #include <stdexcept>
 #include <vector>
+#include <memory>
 
 #include "logger.hpp"
 #include "types.hpp"
@@ -22,18 +23,18 @@ namespace emulator::components
         std::vector<byte> hram;
         std::vector<byte> ioReg;
 
-        // Cartridge &cartridge;
+        std::shared_ptr<Cartridge> cartridge;
 
-        const byte const *activeWramBank = nullptr;
-        const byte const *activeVramBank = nullptr;
-        const byte const *bootRomEnabled = nullptr;
-
-        std::vector<byte> &getMem(word &address);
+        const byte *activeWramBank = nullptr;
+        const byte *activeVramBank = nullptr;
+        const byte *bootRomEnabled = nullptr;
 
     public:
         Bus(bool);
 
-        inline byte &get(word);
+        void setCartridge(std::shared_ptr<Cartridge>);
+
+        byte &getCell(word);
         const byte read(word);
         void write(word, const byte);
 

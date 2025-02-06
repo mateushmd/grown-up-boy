@@ -59,24 +59,11 @@ void emulator_thread()
 
 int main(int argc, char **argv)
 {
-    try
-    {
-        logger::message("Hello World!");
+    emulator::Profile profile;
 
-        emulator::Profile profile;
+    parseArgs(&profile, argc, argv);
 
-        parseArgs(&profile, argc, argv);
-
-        logger::message("Parsed profile!");
-        logger::message(profile.target + "is the target!");
-
-        emulator::GameBoy gb(profile);
-        gb.loadTarget();
-    }
-    catch (const std::exception &e)
-    {
-        std::cerr << e.what() << '\n';
-    }
+    emulator::GameBoy gb(profile);
 
     return 0;
 }

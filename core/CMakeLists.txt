@@ -17,5 +17,7 @@ target_sources(core
         components/cpu/cpu.cpp
         components/cpu/instructions.cpp
         components/cartridge/cartridge.cpp
+        components/cartridge/cartridge_factory.cpp
         debug/debugger.cpp
+        util/file.cpp
 ) 

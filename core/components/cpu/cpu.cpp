@@ -37,7 +37,7 @@ namespace emulator::components
         case 0x3: return registers.singles.E;
         case 0x4: return registers.singles.H;
         case 0x5: return registers.singles.L;
-        case 0x6: return bus.get(registers.pairs.HL);
+        case 0x6: return bus.getCell(registers.pairs.HL);
         case 0x7: return registers.singles.A;
         case 0x8: return registers.singles.F;
         default: throw std::invalid_argument("Invalid register code");

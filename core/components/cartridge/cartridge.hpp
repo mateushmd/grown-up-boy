@@ -2,16 +2,19 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 
 #include "types.hpp"
 
 namespace emulator::components
 {
+    constexpr byte TITLE_SIZE = 11;
+
     struct CartridgeInfo
     {
         byte type;
         std::string title;
-        char licenseeCode[2];
+        std::string licenseeCode;
         byte sgbFlag;
         byte romSize;
         byte ramSize;
@@ -24,58 +27,60 @@ namespace emulator::components
     class Cartridge
     {
     protected:
-        const CartridgeInfo &info;
+        std::shared_ptr<const CartridgeInfo> info = nullptr;
 
-        std::vector<byte> rom;
-        std::vector<byte> ram;
+        std::shared_ptr<std::vector<byte>> rom = nullptr;
+        std::shared_ptr<std::vector<byte>> ram = nullptr;
+
+        virtual byte &getCell(word) = 0;
 
     public:
-        Cartridge(const CartridgeInfo &, const std::vector<byte>, int);
-        Cartridge(const CartridgeInfo &, const std::vector<byte>);
+        Cartridge(std::shared_ptr<const CartridgeInfo>, std::shared_ptr<std::vector<byte>>);
 
-        virtual byte read(const word) const = 0;
-        virtual void write(const word, const byte) = 0;
-        const CartridgeInfo getInfo();
+        virtual const byte read(word);
+        virtual void write(word, byte);
+        std::string toString();
     };
 
     class NO_MBC : public Cartridge
     {
-    public:
-        NO_MBC(const CartridgeInfo &, const std::vector<byte>);
+    protected:
+        byte &getCell(word) override;
 
-        byte read(const word) const override;
-        void write(const word, const byte) override;
+    public:
+        NO_MBC(std::shared_ptr<const CartridgeInfo>, std::shared_ptr<std::vector<byte>>, std::shared_ptr<std::vector<byte>>);
     };
 
     class MBC1 : public Cartridge
     {
-    public:
-        MBC1(const CartridgeInfo &, const std::vector<byte>);
+    private:
+        bool ramEnable;
+        byte activeRomBank;
+        byte secondaryActiveRomBank;
+        byte activeRamBank;
+        bool bankingMode;
 
-        byte read(const word) const override;
-        void write(const word, const byte) override;
+    protected:
+        byte &getCell(word) override;
+
+    public:
+        MBC1(std::shared_ptr<const CartridgeInfo>, std::shared_ptr<std::vector<byte>>, std::shared_ptr<std::vector<byte>>);
+
+        const byte read(word);
+        void write(word, byte) override;
     };
 
+    /*
     class MBC2 : public Cartridge
     {
     public:
-        MBC2(const CartridgeInfo &, const std::vector<byte>);
-
-        byte read(const word) const override;
-        void write(const word, const byte) override;
+        byte &getCell(word &) override;
     };
 
     class MBC3 : public Cartridge
     {
     public:
-        MBC3(const CartridgeInfo &, const std::vector<byte>);
-
-        byte read(const word) const override;
-        void write(const word, const byte) override;
+        byte &getCell(word &) override;
     };
-
-    const CartridgeInfo &getCartridgeInfo(const std::vector<byte> &);
-    size_t getRomSize(const byte);
-    size_t getRamSize(const byte);
-    Cartridge &getCartridge(std::string &);
+    */
 }

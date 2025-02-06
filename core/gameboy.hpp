@@ -1,8 +1,12 @@
 #pragma once
 
+#include <memory>
+
 #include "logger.hpp"
 #include "cpu.hpp"
 #include "bus.hpp"
+#include "cartridge_factory.hpp"
+#include "cartridge.hpp"
 #include "debugger.hpp"
 #include "profile.hpp"
 
@@ -18,7 +22,7 @@ namespace emulator
         CPU cpu;
         Bus bus;
 
-        Debugger *debugger;
+        std::unique_ptr<Debugger> debugger;
 
         Profile &profile;
 
@@ -31,23 +35,12 @@ namespace emulator
     public:
         GameBoy(Profile &profile) : profile(profile), bus(profile.cgb), cpu(bus)
         {
-            logger::message("Instantiating emulator!");
-            bus.init();
-        }
+            if (profile.debug)
+            {
+                debugger = std::make_unique<Debugger>(cpu, bus);
+            }
 
-        void loadTarget()
-        {
-            
-        }
-
-        void attatchDebugger()
-        {
-            debugger = new Debugger(cpu, bus);
-        }
-
-        ~GameBoy()
-        {
-            delete debugger;
+            auto cartridge = getCartridge(profile.target);
         }
     };
 }

@@ -1,8 +1,7 @@
-#pragma once
-
 #include <string>
 #include <stdexcept>
 #include <vector>
+#include <memory>
 
 #include "bus.hpp"
 #include "logger.hpp"
@@ -11,83 +10,6 @@
 
 namespace emulator::components
 {
-    std::vector<byte> &Bus::getMem(word &address)
-    {
-        switch (address)
-        {
-        case 0x0000 ... 0x3FFF:
-        {
-            if (bootRomEnabled && address < 0x0100)
-                return bootRom;
-
-            throw "ROM not implemented";
-        }
-        case 0x4000 ... 0x7FFF:
-        {
-            throw "ROM not implemented";
-        }
-        case 0x8000 ... 0x9FFF:
-        {
-            address -= 0x8000;
-            address += 1024 * 8 * (*activeVramBank);
-            return vram;
-        }
-        case 0xA000 ... 0xBFFF:
-        {
-            throw "EXTERNAL RAM not implemented";
-        }
-        case 0xC000 ... 0xCFFF:
-        {
-            address -= 0xC000;
-            return wram;
-        }
-        case 0xD000 ... 0xDFFF:
-        {
-            address -= 0xD000;
-            address += 1024 * 4 * (*activeWramBank);
-            return wram;
-        }
-        case 0xE000 ... 0xFDFF:
-        {
-            address -= 0x2000;
-
-            if (address < 0xD000)
-                address -= 0xC000;
-            if (address < 0xE000)
-            {
-                address -= 0xD000;
-                address += 1024 * 4 * (*activeVramBank);
-            }
-
-            return wram;
-        }
-        case 0xFE00 ... 0xFE9F:
-        {
-            address -= 0xFE00;
-            return oam;
-        }
-        case 0xFEA0 ... 0xFEFF:
-        {
-            // TODO: implement actual behaviour of range 0xFEA0 - 0xFEFF
-            throw "prohibited";
-        }
-        case 0xFF00 ... 0xFF7F:
-        {
-            address -= 0xFF00;
-            return ioReg;
-        }
-        case 0xFF80 ... 0xFFFE:
-        {
-            address -= 0xFFFF;
-            return hram;
-        }
-        case 0xFFFF:
-        {
-            throw "not implemented";
-        }
-        }
-    }
-
     Bus::Bus(bool cgbMode) : cgbMode(cgbMode),
                              bootRom(100),
                              vram(1024 * 8 * (cgbMode ? 2 : 1)),
@@ -101,19 +23,85 @@ namespace emulator::components
         bootRomEnabled = &(ioReg[0x0050]);
     }
 
-    inline byte &Bus::get(word address)
+    byte &Bus::getCell(word address)
     {
-        return getMem(address)[address];
+        if (address < 0xA000)
+        {
+            address -= 0x8000;
+            address += 1024 * 8 * (*activeVramBank);
+            return vram[address];
+        }
+        if (address < 0xD000)
+        {
+            address -= 0xC000;
+            return wram[address];
+        }
+        if (address < 0xE000)
+        {
+            address -= 0xD000;
+            address += 1024 * 4 * (*activeWramBank);
+            return wram[address];
+        }
+        if (address < 0xFE00)
+        {
+            address -= 0x2000;
+
+            if (address < 0xD000)
+                address -= 0xC000;
+            if (address < 0xE000)
+            {
+                address -= 0xD000;
+                address += 1024 * 4 * (*activeVramBank);
+            }
+
+            return wram[address];
+        }
+        if (address < 0xFEA0)
+        {
+            address -= 0xFE00;
+            return oam[address];
+        }
+        if (address < 0xFF00)
+        {
+            // TODO: implement actual behaviour of range 0xFEA0 - 0xFEFF
+        }
+        if (address < 0xFF80)
+        {
+            address -= 0xFF00;
+            return ioReg[address];
+        }
+        if (address < 0xFFFF)
+        {
+            address -= 0xFFFF;
+            return hram[address];
+        }
+        throw "not implemented";
+    }
+
+    void Bus::setCartridge(std::shared_ptr<Cartridge> cartridgePtr)
+    {
+        cartridge = cartridgePtr;
     }
 
     const byte Bus::read(word address)
     {
-        return get(address);
+        if (address < 0x8000 || (address > 0x9FFF && address < 0xC000))
+            return cartridge->read(address);
+
+        byte value = getCell(address);
+        return value;
     }
 
     void Bus::write(word address, const byte value)
     {
-        get(address) = value;
+        if (address < 0x8000 || (address > 0x9FFF && address < 0xC000))
+        {
+            cartridge->write(address, value);
+            return;
+        }
+
+        byte &cell = getCell(address);
+        cell = value;
     }
 
     const std::vector<byte> &Bus::getVram() const

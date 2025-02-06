@@ -100,7 +100,7 @@ namespace debug
 
     void Debugger::printMemory()
     {
-        std::vector<byte> mem = bus.getWram(0);
+        std::vector<byte> mem = bus.getWram();
 
         std::ostringstream log;
 
