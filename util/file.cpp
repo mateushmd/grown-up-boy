@@ -5,7 +5,6 @@
 #include <cstdint>
 
 #include "file.hpp"
-#include "logger.hpp"
 
 namespace util::file
 {

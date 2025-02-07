@@ -1,16 +1,17 @@
-#pragma once
-
+#include <string>
 #include <bitset>
-#include "types.hpp"
+#include <cstdint>
+
+#include "bitwise.hpp"
 
 namespace util::bitwise
 {
-    inline auto getBits(byte value) -> std::string
+    std::string getBits(uint8_t value)
     {
         return std::bitset<8>(value).to_string();
     }
 
-    inline auto getBits(word value) -> std::string
+    std::string getBits(uint16_t value)
     {
         auto str = std::bitset<16>(value).to_string();
         str.insert(4, " ");

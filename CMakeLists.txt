@@ -48,8 +48,9 @@ endif()
 
 add_subdirectory(core ${CMAKE_CURRENT_BINARY_DIR}/core-build) 
 add_subdirectory(devices ${CMAKE_CURRENT_BINARY_DIR}/devices-build)
+add_subdirectory(util ${CMAKE_CURRENT_BINARY_DIR}/util-build)
 
 add_executable(gub main/main.cpp)
 
-target_link_libraries(gub PRIVATE core devices)
+target_link_libraries(gub PRIVATE util core devices)
 target_link_libraries(gub PRIVATE SDL3::SDL3)

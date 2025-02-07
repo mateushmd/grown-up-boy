@@ -7,7 +7,6 @@ target_include_directories(core
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/components/bus>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/components/cpu>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/components/cartridge>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/util>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/debug>
 )
 
@@ -19,5 +18,6 @@ target_sources(core
         components/cartridge/cartridge.cpp
         components/cartridge/cartridge_factory.cpp
         debug/debugger.cpp
-        util/file.cpp
-) 
+)
+
+target_link_libraries(core PUBLIC util)

@@ -4,7 +4,7 @@
 #include <string>
 #include "types.hpp"
 
-namespace GB
+namespace emulator
 {
     struct Mnemonics
     {

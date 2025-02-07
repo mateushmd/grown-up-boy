@@ -85,8 +85,6 @@ namespace emulator::components
 
         const CartridgeInfo info = getCartridgeInfo(rom);
 
-        logger::message << std::to_string(info.type) << std::endl;
-
         size_t romSize = getRomSize(info.romSize);
 
         if (rom.size() != romSize)

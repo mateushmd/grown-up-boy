@@ -174,9 +174,9 @@ namespace emulator::components
 #pragma endregion Instructions
 
     public:
-        Event<byte, word> onFetch;
-        Event<byte, word> onExecute;
-        Event<> onHalt;
+        util::Event<byte, word> onFetch;
+        util::Event<byte, word> onExecute;
+        util::Event<> onHalt;
 
         CPU(Bus &);
 
