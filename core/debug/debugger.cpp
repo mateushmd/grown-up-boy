@@ -8,6 +8,7 @@
 #include "bitwise.hpp"
 #include "cpu.hpp"
 #include "bus.hpp"
+#include "logger.hpp"
 
 using namespace emulator::components;
 using namespace util;
@@ -30,13 +31,12 @@ namespace debug
     void Debugger::println(std::string string)
     {
         std::string indentation(curIndentVal, '\t');
-        std::cout << indentation << string << std::endl;
+        logger::debug << indentation << string << std::endl;
     }
 
     void Debugger::step()
     {
-
-        std::cout << "\ndebug> ";
+        logger::debug << "\ndebug> ";
 
         std::string userInput = "";
 
@@ -52,30 +52,29 @@ namespace debug
         {
             printMemory();
         }
+        else if (userInput == "ping")
+        {
+            logger::debug << "pong" << std::endl;
+            step();
+        }
     }
 
     void Debugger::onFetch(const byte fetched, const word PC)
     {
-        std::ostringstream log;
-        log << "FETCH: "
-            << "Fetched Byte: 0x" << std::hex << std::uppercase << std::setfill('0')
-            << std::setw(2) << static_cast<int>(fetched) << " "
-            << "(Binary: " << std::bitset<8>(fetched) << "), "
-            << "PC: 0x" << std::hex << std::setw(4) << PC
-            << " (Binary: " << std::bitset<16>(PC) << ")";
-
-        println(log.str());
+        logger::debug << "FETCH: "
+                      << "Fetched Byte: 0x" << std::hex << std::uppercase << std::setfill('0')
+                      << std::setw(2) << static_cast<int>(fetched) << " "
+                      << "(Binary: " << std::bitset<8>(fetched) << "),\n"
+                      << "PC: 0x" << std::hex << std::setw(4) << PC
+                      << " (Binary: " << std::bitset<16>(PC) << ")";
     }
 
     void Debugger::onExecute(const byte opcode, const word PC)
     {
-        std::ostringstream log;
-        log << "EXECUTE: "
-            << "Opcode: 0x" << std::hex << std::uppercase << std::setfill('0')
-            << std::setw(2) << static_cast<int>(opcode) << ", "
-            << "PC: 0x" << std::hex << std::setw(4) << PC;
-
-        println(log.str());
+        logger::debug << "EXECUTE: "
+                      << "Opcode: 0x" << std::hex << std::uppercase << std::setfill('0')
+                      << std::setw(2) << static_cast<int>(opcode) << ",\n"
+                      << "PC: 0x" << std::hex << std::setw(4) << PC;
     }
 
     void Debugger::printRegisters()
@@ -87,20 +86,17 @@ namespace debug
         word PC = cpu.getPC();
         word SP = cpu.getSP();
 
-        std::ostringstream log;
-        log << "AF:" << bitwise::getBits(AF) << " " << "(0x" << AF << ")"
-            << "\nBC:" << bitwise::getBits(BC) << " " << "(0x" << BC << ")"
-            << "\nDE:" << bitwise::getBits(DE) << " " << "(0x" << DE << ")"
-            << "\nHL:" << bitwise::getBits(HL) << " " << "(0x" << HL << ")"
-            << "\nPC:" << bitwise::getBits(PC) << " " << "(0x" << PC << ")"
-            << "\nSP:" << bitwise::getBits(SP) << " " << "(0x" << SP << ")";
-
-        println(log.str());
+        logger::debug << "AF:" << bitwise::getBits(AF) << " " << "(0x" << AF << ")"
+                      << "\nBC:" << bitwise::getBits(BC) << " " << "(0x" << BC << ")"
+                      << "\nDE:" << bitwise::getBits(DE) << " " << "(0x" << DE << ")"
+                      << "\nHL:" << bitwise::getBits(HL) << " " << "(0x" << HL << ")"
+                      << "\nPC:" << bitwise::getBits(PC) << " " << "(0x" << PC << ")"
+                      << "\nSP:" << bitwise::getBits(SP) << " " << "(0x" << SP << ")\n";
     }
 
     void Debugger::printMemory()
     {
-        std::vector<byte> mem = bus.getWram();
+        const std::vector<byte> &mem = bus.getWram();
 
         std::ostringstream log;
 
@@ -123,6 +119,6 @@ namespace debug
             log << std::endl;
         }
 
-        println(log.str());
+        logger::debug << log.str();
     }
 }
