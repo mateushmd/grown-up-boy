@@ -35,7 +35,7 @@ namespace emulator::components
         void setCartridge(std::shared_ptr<Cartridge>);
 
         byte &getCell(word);
-        const byte read(word);
+        byte read(word);
         void write(word, const byte);
 
         const std::vector<byte> &getVram() const;

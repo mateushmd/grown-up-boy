@@ -72,6 +72,8 @@ namespace emulator::components
                 return registers.pairs.HL;
             }
         }
+        default:
+            throw std::invalid_argument("Invalid R16 code " + std::to_string(encoded));
         }
     }
 
@@ -109,6 +111,8 @@ namespace emulator::components
             return !getFlag(CARRY);
         case 3:
             return getFlag(CARRY);
+        default:
+            throw std::invalid_argument("Invalid condition code " + std::to_string(encoded));
         }
     }
 

@@ -37,7 +37,7 @@ namespace emulator::components
     public:
         Cartridge(std::shared_ptr<const CartridgeInfo>, std::shared_ptr<std::vector<byte>>);
 
-        virtual const byte read(word);
+        virtual byte read(word);
         virtual void write(word, byte);
         std::string toString();
     };
@@ -66,7 +66,7 @@ namespace emulator::components
     public:
         MBC1(std::shared_ptr<const CartridgeInfo>, std::shared_ptr<std::vector<byte>>, std::shared_ptr<std::vector<byte>>);
 
-        const byte read(word);
+        byte read(word);
         void write(word, byte) override;
     };
 

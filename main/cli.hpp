@@ -16,7 +16,7 @@ void showHelp()
 // TODO: complete argument paraser
 void parseArgs(Profile *profile, int argc, char *argv[])
 {
-    if (argc == 0 || argv[0] == "-h" || argv[0] == "--help")
+    if (argc == 0 || std::string(argv[0]) == "-h" || std::string(argv[0]) == "--help")
     {
         profile->help = true;
         return;
@@ -31,9 +31,9 @@ void parseArgs(Profile *profile, int argc, char *argv[])
 
         if (argv[i][1] == '-')
         {
-            if (argv[i] == "--debug")
+            if (std::string(argv[i]) == "--debug")
                 profile->debug = true;
-            else if (argv[i] == "--test")
+            else if (std::string(argv[i]) == "--test")
                 profile->test = true;
         }
         else
@@ -44,8 +44,10 @@ void parseArgs(Profile *profile, int argc, char *argv[])
                 {
                 case 'd':
                     profile->debug = true;
+                    break;
                 case 't':
                     profile->test = true;
+                    break;
                 }
             }
         }

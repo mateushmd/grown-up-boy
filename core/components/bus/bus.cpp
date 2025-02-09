@@ -83,7 +83,7 @@ namespace emulator::components
         cartridge = cartridgePtr;
     }
 
-    const byte Bus::read(word address)
+    byte Bus::read(word address)
     {
         if (address < 0x8000 || (address > 0x9FFF && address < 0xC000))
             return cartridge->read(address);

@@ -19,28 +19,24 @@ namespace emulator
     class GameBoy
     {
     private:
-        CPU cpu;
         Bus bus;
-
+        CPU cpu;
         std::unique_ptr<Debugger> debugger;
 
-        Profile &profile;
+    public:
+        GameBoy(std::string target, bool cgb, bool debug) : bus(cgb), cpu(bus)
+        {
+            if (debug)
+                debugger = std::make_unique<Debugger>(cpu, bus);
+
+            auto cartridge = getCartridge(target);
+        }
 
         void update()
         {
-            debugger->step();
+            if (debugger)
+                debugger->step();
             cpu.clock();
-        }
-
-    public:
-        GameBoy(Profile &profile) : profile(profile), bus(profile.cgb), cpu(bus)
-        {
-            if (profile.debug)
-            {
-                debugger = std::make_unique<Debugger>(cpu, bus);
-            }
-
-            auto cartridge = getCartridge(profile.target);
         }
     };
 }

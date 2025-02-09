@@ -25,11 +25,11 @@ namespace emulator::components
         str += "Destination code: " + std::to_string(info->destinationCode) + "\n";
         str += "Version number: " + std::to_string(info->versionNumber) + "\n";
         str += "Header cheksum: " + std::to_string(info->headerCheckSum) + "\n";
-        str += "Global checksum: " + std::to_string(info->globalChecksum);  
+        str += "Global checksum: " + std::to_string(info->globalChecksum);
         return str;
     }
 
-    const byte Cartridge::read(word address)
+    byte Cartridge::read(word address)
     {
         return getCell(address);
     }
@@ -93,7 +93,7 @@ namespace emulator::components
         return (*ram)[address + (8 * 1024 * ramBank)];
     }
 
-    const byte MBC1::read(word address)
+    byte MBC1::read(word address)
     {
         if (!ramEnable && address > 0x9FFF && address < 0xC000)
             return 0xFF;
@@ -126,7 +126,7 @@ namespace emulator::components
         else if (address < 0x6000)
             activeRamBank = value & 0b11;
         else if (address < 0x8000)
-            bankingMode = value & 1 == 1;
+            bankingMode = (value & 1) == 1;
 
         Cartridge::write(address, value);
     }
