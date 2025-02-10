@@ -13,10 +13,10 @@ namespace emulator::components
 
     void CPU::rla(const bool carry)
     {
-        byte msb = (registers.singles.A & 0x80) != 0 ? 1 : 0;
+        byte msb = (registers.A & 0x80) != 0 ? 1 : 0;
         const byte carryValue = carry && getFlag(CARRY) ? 1 : 0;
-        registers.singles.A <<= 1;
-        registers.singles.A += carry ? carryValue : msb;
+        registers.A <<= 1;
+        registers.A += carry ? carryValue : msb;
 
         setFlag(CARRY, msb);
         setFlag(HALF_CARRY, false);
@@ -25,10 +25,10 @@ namespace emulator::components
     }
     void CPU::rra(const bool carry)
     {
-        byte lsb = (registers.singles.A & 0x1) != 0 ? 0x80 : 0;
+        byte lsb = (registers.A & 0x1) != 0 ? 0x80 : 0;
         const byte carryValue = carry && getFlag(CARRY) ? 0x80 : 0;
-        registers.singles.A >>= 1;
-        registers.singles.A += carry ? carryValue : lsb;
+        registers.A >>= 1;
+        registers.A += carry ? carryValue : lsb;
 
         setFlag(CARRY, lsb);
         setFlag(HALF_CARRY, false);
@@ -56,23 +56,23 @@ namespace emulator::components
         }
         else
         {
-            if (getFlag(HALF_CARRY) || (registers.singles.A & 0x0F) > 0x09)
+            if (getFlag(HALF_CARRY) || (registers.A & 0x0F) > 0x09)
                 adjust += 0x06;
-            if (getFlag(CARRY) || registers.singles.A > 0x99)
+            if (getFlag(CARRY) || registers.A > 0x99)
             {
                 adjust += 0x60;
                 setFlag(CARRY, true);
             }
         }
 
-        registers.singles.A += adjust;
+        registers.A += adjust;
 
-        setFlag(ZERO, registers.singles.A == 0);
+        setFlag(ZERO, registers.A == 0);
         setFlag(HALF_CARRY, false);
     }
     void CPU::cpl()
     {
-        registers.singles.A = ~registers.singles.A;
+        registers.A = ~registers.A;
 
         setFlag(HALF_CARRY, true);
         setFlag(SUBTRACTION, true);
@@ -97,20 +97,20 @@ namespace emulator::components
     {
         const byte value = fetch();
         const byte carryValue = carry && getFlag(CARRY) ? 1 : 0;
-        const byte sum = registers.singles.A + value + carryValue;
+        const byte sum = registers.A + value + carryValue;
 
-        setFlag(CARRY, (0xFF - registers.singles.A) < (value + carryValue));
-        setFlag(HALF_CARRY, ((value & 0xF) + (registers.singles.A & 0xF)) > 0xF);
+        setFlag(CARRY, (0xFF - registers.A) < (value + carryValue));
+        setFlag(HALF_CARRY, ((value & 0xF) + (registers.A & 0xF)) > 0xF);
         setFlag(SUBTRACTION, false);
         setFlag(ZERO, sum == 0);
 
-        registers.singles.A = sum;
+        registers.A = sum;
     }
     void CPU::sub_a_imm8(const bool carry)
     {
         const byte value = fetch();
         const byte carryValue = carry && getFlag(CARRY) ? 1 : 0;
-        const byte accValue = registers.singles.A;
+        const byte accValue = registers.A;
         const byte sub = accValue - value - carryValue;
 
         setFlag(CARRY, (value + carryValue) > accValue);
@@ -118,21 +118,21 @@ namespace emulator::components
         setFlag(SUBTRACTION, true);
         setFlag(ZERO, sub == 0);
 
-        registers.singles.A = sub;
+        registers.A = sub;
     }
     void CPU::and_a_imm8()
     {
         const byte value = fetch();
-        registers.singles.A &= value;
+        registers.A &= value;
 
         setFlag(CARRY, false);
         setFlag(HALF_CARRY, true);
         setFlag(SUBTRACTION, false);
-        setFlag(ZERO, registers.singles.A == 0);
+        setFlag(ZERO, registers.A == 0);
     }
     void CPU::jp_hl()
     {
-        registers.PC = registers.pairs.HL;
+        registers.PC = registers.HL;
     }
     void CPU::add_sp_imm8()
     {
@@ -143,7 +143,7 @@ namespace emulator::components
     void CPU::xor_a_imm8()
     {
         const byte value = fetch();
-        registers.singles.A ^= value;
+        registers.A ^= value;
 
         setFlag(CARRY, false);
         setFlag(HALF_CARRY, false);
@@ -152,20 +152,20 @@ namespace emulator::components
     void CPU::or_a_imm8()
     {
         const byte value = fetch();
-        registers.singles.A |= value;
+        registers.A |= value;
 
         setFlag(CARRY, false);
         setFlag(HALF_CARRY, false);
         setFlag(SUBTRACTION, false);
-        setFlag(ZERO, registers.singles.A == 0);
+        setFlag(ZERO, registers.A == 0);
     }
     void CPU::cp_a_imm8()
     {
         const byte value = fetch();
-        const byte sub = registers.singles.A - value;
+        const byte sub = registers.A - value;
 
-        setFlag(CARRY, value > registers.singles.A);
-        setFlag(HALF_CARRY, (value & 0xF) > (registers.singles.A & 0xF));
+        setFlag(CARRY, value > registers.A);
+        setFlag(HALF_CARRY, (value & 0xF) > (registers.A & 0xF));
         setFlag(SUBTRACTION, true);
         setFlag(ZERO, sub == 0);
     }
@@ -279,14 +279,14 @@ namespace emulator::components
         const byte value = getReg_8(encodedReg);
 
         const byte carryValue = carry && getFlag(CARRY) ? 1 : 0;
-        const byte sum = registers.singles.A + value + carryValue;
+        const byte sum = registers.A + value + carryValue;
 
-        setFlag(CARRY, (0xFF - registers.singles.A) < (value + carryValue));
-        setFlag(HALF_CARRY, ((value & 0xF) + (registers.singles.A & 0xF)) > 0xF);
+        setFlag(CARRY, (0xFF - registers.A) < (value + carryValue));
+        setFlag(HALF_CARRY, ((value & 0xF) + (registers.A & 0xF)) > 0xF);
         setFlag(SUBTRACTION, false);
         setFlag(ZERO, sum == 0);
 
-        registers.singles.A = sum;
+        registers.A = sum;
     }
     void CPU::sub_a_r8(const byte opcode, const bool carry)
     {
@@ -294,60 +294,60 @@ namespace emulator::components
         const byte value = getReg_8(encodedReg);
 
         const byte carryValue = carry && getFlag(CARRY) ? 1 : 0;
-        const byte sub = registers.singles.A - value - carryValue;
+        const byte sub = registers.A - value - carryValue;
 
-        setFlag(CARRY, (value + carryValue) > registers.singles.A);
-        setFlag(HALF_CARRY, ((value + carryValue) & 0xF) > (registers.singles.A & 0xF));
+        setFlag(CARRY, (value + carryValue) > registers.A);
+        setFlag(HALF_CARRY, ((value + carryValue) & 0xF) > (registers.A & 0xF));
         setFlag(SUBTRACTION, true);
         setFlag(ZERO, sub == 0);
 
-        registers.singles.A = sub;
+        registers.A = sub;
     }
     void CPU::and_a_r8(const byte opcode)
     {
         const byte encodedReg = (opcode & 0x07);
         const byte value = getReg_8(encodedReg);
 
-        registers.singles.A &= value;
+        registers.A &= value;
 
         setFlag(CARRY, false);
         setFlag(HALF_CARRY, true);
         setFlag(SUBTRACTION, false);
-        setFlag(ZERO, registers.singles.A == 0);
+        setFlag(ZERO, registers.A == 0);
     }
     void CPU::xor_a_r8(const byte opcode)
     {
         const byte encodedReg = (opcode & 0x07);
         const byte value = getReg_8(encodedReg);
 
-        registers.singles.A ^= value;
+        registers.A ^= value;
 
         setFlag(CARRY, false);
         setFlag(HALF_CARRY, false);
         setFlag(SUBTRACTION, false);
-        setFlag(ZERO, registers.singles.A == 0);
+        setFlag(ZERO, registers.A == 0);
     }
     void CPU::or_a_r8(const byte opcode)
     {
         const byte encodedReg = (opcode & 0x07);
         const byte value = getReg_8(encodedReg);
 
-        registers.singles.A |= value;
+        registers.A |= value;
 
         setFlag(CARRY, false);
         setFlag(HALF_CARRY, false);
         setFlag(SUBTRACTION, false);
-        setFlag(ZERO, registers.singles.A == 0);
+        setFlag(ZERO, registers.A == 0);
     }
     void CPU::cp_a_r8(const byte opcode)
     {
         const byte encodedReg = (opcode & 0x07);
         const byte value = getReg_8(encodedReg);
 
-        const byte sub = registers.singles.A - value;
+        const byte sub = registers.A - value;
 
-        setFlag(CARRY, value > registers.singles.A);
-        setFlag(HALF_CARRY, (value & 0xF) > (registers.singles.A & 0xF));
+        setFlag(CARRY, value > registers.A);
+        setFlag(HALF_CARRY, (value & 0xF) > (registers.A & 0xF));
         setFlag(SUBTRACTION, true);
         setFlag(ZERO, sub == 0);
     }
@@ -406,13 +406,13 @@ namespace emulator::components
     {
         const byte encoded = (opcode & 0x30) >> 4;
         const word reg = getReg_16(encoded, R16ReadSource::DEFAULT);
-        const word sum = reg + registers.pairs.HL;
+        const word sum = reg + registers.HL;
 
-        setFlag(CARRY, reg > (0xFFFF - registers.pairs.HL));
-        setFlag(HALF_CARRY, ((registers.pairs.HL & 0xFFF) + (reg & 0xFFF)) > 0xFFF);
+        setFlag(CARRY, reg > (0xFFFF - registers.HL));
+        setFlag(HALF_CARRY, ((registers.HL & 0xFFF) + (reg & 0xFFF)) > 0xFFF);
         setFlag(SUBTRACTION, false);
 
-        registers.pairs.HL = sum;
+        registers.HL = sum;
     }
     void CPU::push_r16(const byte opcode)
     {
@@ -453,13 +453,13 @@ namespace emulator::components
     {
         const byte encodedReg = (opcode & 0x30) >> 4;
         const word reg = getReg_16(encodedReg, R16ReadSource::MEMORY);
-        bus.write(reg, registers.singles.A);
+        bus.write(reg, registers.A);
     }
     void CPU::ld_a_r16mem(const byte opcode)
     {
         const byte encodedReg = (opcode & 0x30) >> 4;
         const word reg = getReg_16(encodedReg, R16ReadSource::MEMORY);
-        registers.singles.A = bus.read(reg);
+        registers.A = bus.read(reg);
     }
     void CPU::ld_imm16mem_sp()
     {
@@ -469,30 +469,30 @@ namespace emulator::components
     void CPU::ld_imm16mem_a()
     {
         const word address = fetchWord();
-        bus.write(address, registers.singles.A);
+        bus.write(address, registers.A);
     }
     void CPU::ldh_imm8mem_a()
     {
         const byte address = fetch();
-        bus.write(0xFF00 + address, registers.singles.A);
+        bus.write(0xFF00 + address, registers.A);
     }
     void CPU::ldh_c_a()
     {
-        bus.write(0xFF00 + registers.singles.C, registers.singles.A);
+        bus.write(0xFF00 + registers.C, registers.A);
     }
     void CPU::ldh_a_imm8mem()
     {
         const byte address = fetch();
-        registers.singles.A = bus.read(0xFF00 + address);
+        registers.A = bus.read(0xFF00 + address);
     }
     void CPU::ldh_a_c()
     {
-        registers.singles.A = bus.read(0xFF00 + registers.singles.C);
+        registers.A = bus.read(0xFF00 + registers.C);
     }
     void CPU::ld_a_imm16mem()
     {
         const word address = fetchWord();
-        registers.singles.A = bus.read(address);
+        registers.A = bus.read(address);
     }
     void CPU::ld_sp_imm16()
     {
@@ -502,11 +502,11 @@ namespace emulator::components
     void CPU::ld_hl_sp_p_e8()
     {
         const sbyte offset = static_cast<sbyte>(fetch());
-        registers.pairs.HL = registers.SP + offset;
+        registers.HL = registers.SP + offset;
     }
     void CPU::ld_sp_hl()
     {
-        registers.SP = registers.pairs.HL;
+        registers.SP = registers.HL;
     }
 
     void CPU::rl_r8(const byte opcode, const bool carry)

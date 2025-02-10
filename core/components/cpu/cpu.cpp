@@ -12,12 +12,12 @@ namespace emulator::components
 
     void CPU::boot()
     {
-        registers.IE = 0;
-        registers.pairs.AF = 0;
-        registers.pairs.BC = 0;
-        registers.pairs.DE = 0;
-        registers.pairs.HL = 0;
-        registers.PC = 0;
+        registers.IE = 0x0000;
+        registers.AF = 0x0000;
+        registers.BC = 0x0000;
+        registers.DE = 0x0000;
+        registers.HL = 0x0000;
+        registers.PC = 0x0100;
         registers.SP = 0xFFFE;
 
         // TODO: check IME initial state
@@ -31,15 +31,15 @@ namespace emulator::components
     {
         switch (encoded)
         {
-        case 0x0: return registers.singles.B;
-        case 0x1: return registers.singles.C;
-        case 0x2: return registers.singles.D;
-        case 0x3: return registers.singles.E;
-        case 0x4: return registers.singles.H;
-        case 0x5: return registers.singles.L;
-        case 0x6: return bus.getCell(registers.pairs.HL);
-        case 0x7: return registers.singles.A;
-        case 0x8: return registers.singles.F;
+        case 0x0: return registers.B;
+        case 0x1: return registers.C;
+        case 0x2: return registers.D;
+        case 0x3: return registers.E;
+        case 0x4: return registers.H;
+        case 0x5: return registers.L;
+        case 0x6: return bus.getCell(registers.HL);
+        case 0x7: return registers.A;
+        case 0x8: return registers.F;
         default: throw std::invalid_argument("Invalid register code");
         }
     }
@@ -50,26 +50,26 @@ namespace emulator::components
         switch (encoded)
         {
         case 0x0:
-            return registers.pairs.BC;
+            return registers.BC;
         case 0x1:
-            return registers.pairs.DE;
+            return registers.DE;
         case 0x2:
         {
             if (source == R16ReadSource::MEMORY)
-                registers.pairs.HL++;
+                registers.HL++;
 
-            return registers.pairs.HL;
+            return registers.HL;
         }
         case 0x3:
         {
             if (source == R16ReadSource::DEFAULT)
                 return registers.SP;
             else if (source == R16ReadSource::STACK)
-                return registers.pairs.AF;
+                return registers.AF;
             else
             {
-                registers.pairs.HL--;
-                return registers.pairs.HL;
+                registers.HL--;
+                return registers.HL;
             }
         }
         default:
@@ -83,7 +83,7 @@ namespace emulator::components
             throw std::invalid_argument("Invalid flag code");
 
         byte mask = 1 << (flag - 4);
-        return registers.singles.F & mask;
+        return registers.F & mask;
     }
 
     void CPU::setFlag(const byte flag, const bool newState)
@@ -94,9 +94,9 @@ namespace emulator::components
         byte mask = 1 << (flag - 4);
 
         if (newState)
-            registers.singles.F |= mask;
+            registers.F |= mask;
         else
-            registers.singles.F &= ~mask;
+            registers.F &= ~mask;
     }
 
     bool CPU::getCondition(const byte encoded)

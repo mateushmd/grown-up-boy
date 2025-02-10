@@ -2,6 +2,8 @@
 #pragma once
 
 #include <functional>
+#include <array>
+#include <bit>
 
 #include "types.hpp"
 #include "event.hpp"
@@ -24,24 +26,30 @@ namespace emulator::components
         MEMORY
     };
 
-    union RegisterPair
+    struct Registers
     {
-        struct Bytes
+        union
         {
-            byte low;
-            byte high;
-        } bytes;
+            struct 
+            {
+                byte A, F;
+                byte B, C;
+                byte D, E;
+                byte H, L;
+            };
 
-        word value;
+            struct
+            {
+                word AF;
+                word BC;
+                word DE;
+                word HL;
+            };
+        };
 
-        operator word &() { return value; }
-        operator const word &() const { return value; }
-
-        RegisterPair &operator=(word rhs)
-        {
-            value = rhs;
-            return *this;
-        }
+        word PC;
+        word SP;
+        byte IE;
     };
 
     class CPU
@@ -52,32 +60,7 @@ namespace emulator::components
         static constexpr byte ZERO = 0x7;
 
     private:
-        union Registers
-        {
-            struct Pairs
-            {
-                RegisterPair AF;
-                RegisterPair BC;
-                RegisterPair DE;
-                RegisterPair HL;
-            } pairs;
-
-            struct Singles
-            {
-                byte F;
-                byte A;
-                byte C;
-                byte B;
-                byte E;
-                byte D;
-                byte L;
-                byte H;
-            } singles;
-
-            byte IE;
-            word PC;
-            word SP;
-        } registers;
+        Registers registers;
 
         bool IME;
 
@@ -87,6 +70,8 @@ namespace emulator::components
         States state;
 
         byte fetched;
+
+        word &AF();
 
         void boot();
 
@@ -182,10 +167,10 @@ namespace emulator::components
 
         void clock();
 
-        word getAF() { return registers.pairs.AF; }
-        word getBC() { return registers.pairs.BC; }
-        word getDE() { return registers.pairs.DE; }
-        word getHL() { return registers.pairs.HL; }
+        word getAF() { return registers.AF; }
+        word getBC() { return registers.BC; }
+        word getDE() { return registers.DE; }
+        word getHL() { return registers.HL; }
         word getPC() { return registers.PC; }
         word getSP() { return registers.SP; }
     };

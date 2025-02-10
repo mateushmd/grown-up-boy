@@ -1,9 +1,11 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <stdexcept>
 
 #include "cartridge.hpp"
 #include "file.hpp"
+#include "logger.hpp"
 
 namespace emulator::components
 {
@@ -38,6 +40,22 @@ namespace emulator::components
     {
         byte &cellValue = getCell(address);
         cellValue = value;
+    }
+
+    const std::vector<byte> &Cartridge::getRom() const
+    {
+        if (!rom)
+            throw std::runtime_error("Cartridge ROM is unavailable");
+
+        return *rom;
+    }
+
+    const std::vector<byte> &Cartridge::getRam() const
+    {
+        if (!ram)
+            throw std::runtime_error("Cartridge RAM is unavailable");
+
+        return *ram;
     }
 
 #pragma region NO_MBC

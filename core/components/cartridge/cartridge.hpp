@@ -40,6 +40,9 @@ namespace emulator::components
         virtual byte read(word);
         virtual void write(word, byte);
         std::string toString();
+
+        const std::vector<byte> &getRom() const;
+        const std::vector<byte> &getRam() const;
     };
 
     class NO_MBC : public Cartridge

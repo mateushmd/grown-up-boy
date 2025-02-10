@@ -104,9 +104,24 @@ namespace emulator::components
         cell = value;
     }
 
+    const std::vector<byte> &Bus::getBootRom() const
+    {
+        return bootRom;
+    }
+
+    const std::vector<byte> &Bus::getCartridgeRom() const
+    {
+        return cartridge->getRom();
+    }
+
     const std::vector<byte> &Bus::getVram() const
     {
         return vram;
+    }
+
+    const std::vector<byte> &Bus::getCartridgeRam() const
+    {
+        return cartridge->getRam();
     }
 
     const std::vector<byte> &Bus::getWram() const
@@ -119,13 +134,14 @@ namespace emulator::components
         return oam;
     }
 
+    const std::vector<byte> &Bus::getIOReg() const
+    {
+        return ioReg;
+    }
+
     const std::vector<byte> &Bus::getHram() const
     {
         return hram;
     }
 
-    const std::vector<byte> &Bus::getIOReg() const
-    {
-        return ioReg;
-    }
 }

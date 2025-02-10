@@ -18,6 +18,7 @@ target_sources(core
         components/cartridge/cartridge.cpp
         components/cartridge/cartridge_factory.cpp
         debug/debugger.cpp
+        debug/memory_inspector.cpp
 )
 
 target_link_libraries(core PUBLIC util)

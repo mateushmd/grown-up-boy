@@ -59,11 +59,20 @@ void emulator_thread()
 
 int main(int argc, char **argv)
 {
-    emulator::Profile profile;
+    try
+    {
+        emulator::Profile profile;
 
-    parseArgs(&profile, argc, argv);
+        parseArgs(&profile, argc, argv);
 
-    emulator::GameBoy gb(profile);
+        emulator::GameBoy gb(profile.target, profile.cgb, profile.debug);
+
+        gb.update();
+    }
+    catch (const std::exception &e)
+    {
+        logger::error << e.what() << '\n';
+    }
 
     return 0;
 }

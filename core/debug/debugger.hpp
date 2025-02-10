@@ -5,6 +5,7 @@
 #include "types.hpp"
 #include "cpu.hpp"
 #include "bus.hpp"
+#include "memory_inspector.hpp"
 
 using namespace emulator::components;
 
@@ -16,9 +17,10 @@ namespace debug
         STEP
     };
 
-    enum UserInput
+    enum StepState
     {
-
+        COMPONENTS,
+        MEMORY
     };
 
     class Debugger
@@ -27,11 +29,24 @@ namespace debug
         CPU &cpu;
         Bus &bus;
 
-        int curIndentVal;
-        int counter;
-        std::string indent();
-        void println(std::string);
         DebuggerMode mode;
+        StepState stepState = StepState::COMPONENTS;
+        std::string branch = "";
+
+        MemoryInspector mI;
+
+        void parseArgs(std::string);
+        void parseArgsComponents(std::string);
+        void parseArgsMemory(std::string);
+
+        void enterMemoryState(std::string, const std::vector<byte> *);
+
+        void showComponentsHelp();
+        void showMemoryHelp();
+
+        void printRegisters();
+
+        std::vector<std::string> splitArgs(std::string &);
 
     public:
         Debugger(CPU &, Bus &);
@@ -39,11 +54,6 @@ namespace debug
         void onFetch(const byte, const word);
         void onExecute(const byte, const word);
         void onHalt();
-
-        void printRegisters();
-        void printMemory();
-
-        void waitForUserInput();
 
         void setMode(const DebuggerMode);
     };

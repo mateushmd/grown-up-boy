@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <sstream>
 #include <bitset>
+#include <format>
 
 #include "debugger.hpp"
 #include "types.hpp"
@@ -18,8 +19,6 @@ namespace debug
     Debugger::Debugger(CPU &cpu, Bus &bus) : cpu(cpu),
                                              bus(bus)
     {
-        curIndentVal = 0;
-        counter = 0;
         mode = DebuggerMode::DIRECT;
 
         cpu.onFetch.subscribe([this](byte fetched, word PC)
@@ -28,53 +27,40 @@ namespace debug
                                 { this->onExecute(opcode, PC); });
     }
 
-    void Debugger::println(std::string string)
-    {
-        std::string indentation(curIndentVal, '\t');
-        logger::debug << indentation << string << std::endl;
-    }
-
     void Debugger::step()
     {
-        logger::debug << "\ndebug> ";
+        logger::message << "debug";
+
+        if (stepState != StepState::COMPONENTS)
+            logger::message << "/" << branch;
+
+        logger::message << "> ";
 
         std::string userInput = "";
-
         std::getline(std::cin, userInput);
 
         if (userInput.empty())
             return;
-        if (userInput == "reg")
-        {
-            printRegisters();
-        }
-        else if (userInput == "mem")
-        {
-            printMemory();
-        }
-        else if (userInput == "ping")
-        {
-            logger::debug << "pong" << std::endl;
-            step();
-        }
+
+        parseArgs(userInput);
     }
 
     void Debugger::onFetch(const byte fetched, const word PC)
     {
-        logger::debug << "FETCH: "
-                      << "Fetched Byte: 0x" << std::hex << std::uppercase << std::setfill('0')
-                      << std::setw(2) << static_cast<int>(fetched) << " "
-                      << "(Binary: " << std::bitset<8>(fetched) << "),\n"
-                      << "PC: 0x" << std::hex << std::setw(4) << PC
-                      << " (Binary: " << std::bitset<16>(PC) << ")";
+        logger::message << "FETCH: "
+                        << "Fetched Byte: 0x" << std::hex << std::uppercase << std::setfill('0')
+                        << std::setw(2) << static_cast<int>(fetched) << " "
+                        << "(Binary: " << std::bitset<8>(fetched) << "),\n"
+                        << "PC: 0x" << std::hex << std::setw(4) << PC
+                        << " (Binary: " << std::bitset<16>(PC) << ")";
     }
 
     void Debugger::onExecute(const byte opcode, const word PC)
     {
-        logger::debug << "EXECUTE: "
-                      << "Opcode: 0x" << std::hex << std::uppercase << std::setfill('0')
-                      << std::setw(2) << static_cast<int>(opcode) << ",\n"
-                      << "PC: 0x" << std::hex << std::setw(4) << PC;
+        logger::message << "EXECUTE: "
+                        << "Opcode: 0x" << std::hex << std::uppercase << std::setfill('0')
+                        << std::setw(2) << opcode << ",\n"
+                        << "PC: 0x" << std::hex << std::setw(4) << PC;
     }
 
     void Debugger::printRegisters()
@@ -86,39 +72,154 @@ namespace debug
         word PC = cpu.getPC();
         word SP = cpu.getSP();
 
-        logger::debug << "AF:" << bitwise::getBits(AF) << " " << "(0x" << AF << ")"
-                      << "\nBC:" << bitwise::getBits(BC) << " " << "(0x" << BC << ")"
-                      << "\nDE:" << bitwise::getBits(DE) << " " << "(0x" << DE << ")"
-                      << "\nHL:" << bitwise::getBits(HL) << " " << "(0x" << HL << ")"
-                      << "\nPC:" << bitwise::getBits(PC) << " " << "(0x" << PC << ")"
-                      << "\nSP:" << bitwise::getBits(SP) << " " << "(0x" << SP << ")\n";
+        logger::message
+            << "AF: " << bitwise::getBits(AF) << " " << "(0x" << std::format("{:04X}", AF) << ")\n"
+            << "BC: " << bitwise::getBits(BC) << " " << "(0x" << std::format("{:04X}", BC) << ")\n"
+            << "DE: " << bitwise::getBits(DE) << " " << "(0x" << std::format("{:04X}", DE) << ")\n"
+            << "HL: " << bitwise::getBits(HL) << " " << "(0x" << std::format("{:04X}", HL) << ")\n"
+            << "PC: " << bitwise::getBits(PC) << " " << "(0x" << std::format("{:04X}", PC) << ")\n"
+            << "SP: " << bitwise::getBits(SP) << " " << "(0x" << std::format("{:04X}", SP) << ")\n";
     }
 
-    void Debugger::printMemory()
+    void Debugger::parseArgs(std::string args)
     {
-        const std::vector<byte> &mem = bus.getWram();
+        logger::message << '\n';
 
-        std::ostringstream log;
+        if (stepState == StepState::COMPONENTS)
+            parseArgsComponents(args);
+        else if (stepState == StepState::MEMORY)
+            parseArgsMemory(args);
 
-        for (int i = 0; i < 16; i++)
+        logger::message << '\n';
+        step();
+    }
+
+    void Debugger::parseArgsComponents(std::string args)
+    {
+        try
         {
-            log << "   x" << std::hex << i << "    ";
-        }
-
-        log << std::endl;
-
-        for (int i = 0; i < 16; i++)
-        {
-            log << std::hex << i << "x\t";
-
-            for (int j = 0; j < 16; j++)
+            if (args == "help")
+                showComponentsHelp();
+            else if (args == "reg")
+                printRegisters();
+            else if (args == "brom")
+                enterMemoryState("boot rom", &(bus.getBootRom()));
+            else if (args == "crom")
+                enterMemoryState("cartridge rom", &(bus.getCartridgeRom()));
+            else if (args == "vram")
+                enterMemoryState("video ram", &(bus.getVram()));
+            else if (args == "cram")
+                enterMemoryState("cartridge ram", &(bus.getCartridgeRam()));
+            else if (args == "wram")
+                enterMemoryState("working ram", &(bus.getWram()));
+            else if (args == "ioreg")
+                enterMemoryState("i/o registers", &(bus.getIOReg()));
+            else if (args == "hram")
+                enterMemoryState("high ram", &(bus.getHram()));
+            else if (args == "ping")
+                logger::message << "pong\n";
+            else
             {
-                log << "   " << bitwise::getBits(mem[(i << 4) | j]) << "    ";
+                logger::error << "Invalid command";
+                showComponentsHelp();
             }
+        }
+        catch (const std::exception &e)
+        {
+            logger::error << e.what() << '\n';
+            showComponentsHelp();
+        }
+    }
 
-            log << std::endl;
+    void Debugger::enterMemoryState(std::string branch, const std::vector<byte> *mem)
+    {
+        stepState = StepState::MEMORY;
+        this->branch = branch;
+        mI.setMemory(mem);
+        mI.next();
+    }
+
+    void Debugger::parseArgsMemory(std::string rawArgs)
+    {
+        auto args = splitArgs(rawArgs);
+
+        try
+        {
+            if (args.size() > 1 && args[0] == "goto")
+            {
+                int pageNumber = std::stoi(args[1]);
+                mI.goToPage(pageNumber);
+            }
+            else if (args[0] == "help")
+                showMemoryHelp();
+            else if (args[0] == "next")
+            {
+                mI.next();
+            }
+            else if (args[0] == "prev")
+            {
+                mI.previous();
+            }
+            else if (args[0] == "quit")
+            {
+                mI.end();
+                stepState = StepState::COMPONENTS;
+                branch = "";
+            }
+            else if (args[0] == "ping")
+            {
+                logger::message << "pong\n";
+            }
+            else
+            {
+                logger::error << "Invalid command";
+                showMemoryHelp();
+            }
+        }
+        catch (const std::exception &e)
+        {
+            logger::error << e.what() << '\n';
+        }
+    }
+
+    void Debugger::showComponentsHelp()
+    {
+        std::cout << "Avaliable commands:\n"
+                  << "\treg\t\tShow all CPU registers and their values\n"
+                  << "\tbrom\t\tNavigate boot ROM memory\n"
+                  << "\tcrom\t\tNavigate cartridge ROM memory\n"
+                  << "\tvram\t\tNavigate video RAM (VRAM)\n"
+                  << "\tcram\t\tNavigate cartridge RAM\n"
+                  << "\twram\t\tNavigate working RAM\n"
+                  << "\tioreg\t\tNavigate I/O registers\n"
+                  << "\thram\t\tNavigate high RAM\n"
+                  << "\thelp\t\tList available commands with description\n"
+                  << "\tping\t\tEven the devs have no idea what this does\n"
+                  << "\nPress Enter to continue emulation.\n";
+    }
+
+    void Debugger::showMemoryHelp()
+    {
+        std::cout << "Available commands: \n"
+                  << "\tnext\t\tNavigate to the next page\n"
+                  << "\tprev\t\tNavigate to the previous page\n"
+                  << "\tgoto <num>\tNavigate to the specified page number\n"
+                  << "\tquit\t\tQuit memory navigation mode\n"
+                  << "\thelp\t\tList available commands with description\n"
+                  << "\tping\t\tEven the devs have no idea what this does\n";
+    }
+
+    std::vector<std::string> Debugger::splitArgs(std::string &raw)
+    {
+        std::istringstream stream(raw);
+        std::vector<std::string> args;
+        std::string arg;
+
+        while (stream >> arg)
+        {
+            args.push_back(arg);
         }
 
-        logger::debug << log.str();
+        return args;
     }
 }

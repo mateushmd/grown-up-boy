@@ -38,10 +38,13 @@ namespace emulator::components
         byte read(word);
         void write(word, const byte);
 
+        const std::vector<byte> &getBootRom() const;
+        const std::vector<byte> &getCartridgeRom() const;
         const std::vector<byte> &getVram() const;
+        const std::vector<byte> &getCartridgeRam() const;
         const std::vector<byte> &getWram() const;
         const std::vector<byte> &getOam() const;
-        const std::vector<byte> &getHram() const;
         const std::vector<byte> &getIOReg() const;
+        const std::vector<byte> &getHram() const;
     };
 }

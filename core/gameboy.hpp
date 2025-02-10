@@ -8,7 +8,6 @@
 #include "cartridge_factory.hpp"
 #include "cartridge.hpp"
 #include "debugger.hpp"
-#include "profile.hpp"
 
 using namespace debug;
 
@@ -30,6 +29,7 @@ namespace emulator
                 debugger = std::make_unique<Debugger>(cpu, bus);
 
             auto cartridge = getCartridge(target);
+            bus.setCartridge(cartridge);
         }
 
         void update()

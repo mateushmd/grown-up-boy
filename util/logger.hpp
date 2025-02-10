@@ -46,7 +46,7 @@ namespace logger
                 out << BLUE;
                 break;
             }
-            out << msg;
+            out << msg << RESET;
             return *this;
         }
 
