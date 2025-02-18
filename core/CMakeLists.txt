@@ -13,6 +13,7 @@ target_include_directories(core
 target_sources(core
     PRIVATE
         components/bus/bus.cpp
+        components/cpu/registers.cpp
         components/cpu/cpu.cpp
         components/cpu/instructions.cpp
         components/cartridge/cartridge.cpp
