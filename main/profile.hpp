@@ -7,12 +7,12 @@ namespace emulator
     struct Profile
     {
         bool help;
-
         bool cgb;
-
         bool test;
-        std::string target;
-
         bool debug;
+        bool skipBoot;
+
+        std::string bootRom;
+        std::string cartridge;
     };
 }

@@ -65,9 +65,16 @@ int main(int argc, char **argv)
 
         parseArgs(&profile, argc, argv);
 
-        emulator::GameBoy gb(profile.target, profile.cgb, profile.debug);
-
-        gb.update();
+        if (profile.help)
+        {
+            showHelp();
+            return 0;
+        }
+        
+        emulator::GameBoy gb(profile.skipBoot, profile.cgb, profile.debug);
+        gb.setCartridge(profile.cartridge);
+        if(!profile.skipBoot) gb.setBootRom(profile.bootRom);
+        gb.start();
     }
     catch (const std::exception &e)
     {

@@ -22,7 +22,10 @@ void parseArgs(Profile *profile, int argc, char *argv[])
         return;
     }
 
-    for (int i = 1; i < argc - 1; i++)
+    profile->help = false;
+    profile->skipBoot = false;
+
+    for (int i = 1; i < argc - (profile->skipBoot ? 1 : 2); i++)
     {
         int argLen = strlen(argv[i]);
 
@@ -31,10 +34,16 @@ void parseArgs(Profile *profile, int argc, char *argv[])
 
         if (argv[i][1] == '-')
         {
-            if (std::string(argv[i]) == "--debug")
+            std::string arg(argv[i]);
+
+            if (arg == "--debug")
                 profile->debug = true;
-            else if (std::string(argv[i]) == "--test")
+            else if (arg == "--test")
                 profile->test = true;
+            else if (arg == "--skip-boot")
+                profile->skipBoot = true;
+            else if (arg == "--help")
+                throw std::runtime_error("Invalid usage of --help");
         }
         else
         {
@@ -48,10 +57,17 @@ void parseArgs(Profile *profile, int argc, char *argv[])
                 case 't':
                     profile->test = true;
                     break;
+                case 's':
+                    profile->skipBoot = true;
+                    break;
+                case 'h':
+                    throw std::runtime_error("Invalid usage of -h");
                 }
             }
         }
     }
 
-    profile->target = std::string(argv[argc - 1]);
+    if (!profile->skipBoot)
+        profile->bootRom = std::string(argv[argc - 2]);
+    profile->cartridge = std::string(argv[argc - 1]);
 }
