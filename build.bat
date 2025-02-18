@@ -13,10 +13,10 @@ mkdir "%BUILD_DIR%"
 cd "%BUILD_DIR%"
 
 echo Generating build files...
-cmake .. -G Ninja
+cmake -DCMAKE_BUILD_TYPE=Debug .. -G Ninja
 
 echo Building the project...
-REM ninja > build.log 2>&1
+REM ninja > build.log 2>&1  
 ninja
 
 cd ..
