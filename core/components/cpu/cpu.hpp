@@ -6,6 +6,7 @@
 #include <bit>
 
 #include "types.hpp"
+#include "registers.hpp"
 #include "event.hpp"
 #include "bus.hpp"
 
@@ -19,37 +20,11 @@ namespace emulator::components
         STOP
     };
 
-    enum class R16ReadSource
+    enum class R16Source
     {
         DEFAULT,
         STACK,
         MEMORY
-    };
-
-    struct Registers
-    {
-        union
-        {
-            struct 
-            {
-                byte A, F;
-                byte B, C;
-                byte D, E;
-                byte H, L;
-            };
-
-            struct
-            {
-                word AF;
-                word BC;
-                word DE;
-                word HL;
-            };
-        };
-
-        word PC;
-        word SP;
-        byte IE;
     };
 
     class CPU
@@ -60,7 +35,9 @@ namespace emulator::components
         static constexpr byte ZERO = 0x7;
 
     private:
-        Registers registers;
+        Register8 A, F, B, C, D, E, H, L, IE;
+        Register16 PC, SP;
+        RegisterPair AF, BC, DE, HL;
 
         bool IME;
 
@@ -71,12 +48,11 @@ namespace emulator::components
 
         byte fetched;
 
-        word &AF();
+        byte getReg_8(const byte);
+        word getReg_16(const byte, const R16Source);
 
-        void boot();
-
-        byte &getReg_8(const byte);
-        word &getReg_16(const byte, const R16ReadSource);
+        void setReg_8(const byte, const byte);
+        void setReg_16(const byte, const word, const R16Source);
 
         bool getFlag(const byte);
         void setFlag(const byte, const bool);
@@ -163,15 +139,24 @@ namespace emulator::components
         util::Event<byte, word> onExecute;
         util::Event<> onHalt;
 
-        CPU(Bus &);
+        CPU(Bus &, bool);
 
         void clock();
 
-        word getAF() { return registers.AF; }
-        word getBC() { return registers.BC; }
-        word getDE() { return registers.DE; }
-        word getHL() { return registers.HL; }
-        word getPC() { return registers.PC; }
-        word getSP() { return registers.SP; }
+        word getAF();
+        word getBC();
+        word getDE();
+        word getHL();
+        word getPC();
+        word getSP();
+
+        byte getA();
+        byte getF();
+        byte getB();
+        byte getC();
+        byte getD();
+        byte getE();
+        byte getH();
+        byte getL();
     };
 }

@@ -2,23 +2,20 @@
 #include <cmath>
 
 #include "cpu.hpp"
+#include "registers.hpp"
 
 namespace emulator::components
 {
-    CPU::CPU(Bus &bus) : bus(bus)
+    CPU::CPU(Bus &bus, bool skipBoot) : AF(A, F), BC(B, C), DE(D, E), HL(H, L), bus(bus)
     {
-        boot();
-    }
-
-    void CPU::boot()
-    {
-        registers.IE = 0x0000;
-        registers.AF = 0x0000;
-        registers.BC = 0x0000;
-        registers.DE = 0x0000;
-        registers.HL = 0x0000;
-        registers.PC = 0x0100;
-        registers.SP = 0xFFFE;
+        IE.set(0x0);
+        AF.set(0x0);
+        BC.set(0x0);
+        DE.set(0x0);
+        HL.set(0x0);
+        // TODO: make compatibility with cgb
+        PC.set(skipBoot ? 0x100 : 0x0);
+        SP.set(0x0);
 
         // TODO: check IME initial state
         IME = 0;
@@ -27,50 +24,94 @@ namespace emulator::components
     }
 
     // clang-format off
-    byte &CPU::getReg_8(const byte encoded)
+    byte CPU::getReg_8(const byte encoded)
     {
         switch (encoded)
         {
-        case 0x0: return registers.B;
-        case 0x1: return registers.C;
-        case 0x2: return registers.D;
-        case 0x3: return registers.E;
-        case 0x4: return registers.H;
-        case 0x5: return registers.L;
-        case 0x6: return bus.getCell(registers.HL);
-        case 0x7: return registers.A;
-        case 0x8: return registers.F;
+        case 0x0: return B.get();
+        case 0x1: return C.get();
+        case 0x2: return D.get();
+        case 0x3: return E.get();
+        case 0x4: return H.get();
+        case 0x5: return L.get();
+        case 0x6: return bus.getCell(HL.get());
+        case 0x7: return A.get();
+        default: throw std::invalid_argument("Invalid register code");
+        }
+    }
+
+    void CPU::setReg_8(const byte encoded, const byte value)
+    {
+        switch (encoded)
+        {
+        case 0x0: B.set(value); break;
+        case 0x1: C.set(value); break;
+        case 0x2: D.set(value); break;
+        case 0x3: E.set(value); break;
+        case 0x4: H.set(value); break;
+        case 0x5: L.set(value); break;
+        case 0x6: bus.getCell(HL.get()) = value; break;
+        case 0x7: A.set(value); break;
         default: throw std::invalid_argument("Invalid register code");
         }
     }
     // clang-format on
 
-    word &CPU::getReg_16(const byte encoded, const R16ReadSource source)
+    word CPU::getReg_16(const byte encoded, const R16Source source)
     {
         switch (encoded)
         {
         case 0x0:
-            return registers.BC;
+            return BC.get();
         case 0x1:
-            return registers.DE;
+            return DE.get();
         case 0x2:
         {
-            if (source == R16ReadSource::MEMORY)
-                registers.HL++;
+            if (source == R16Source::MEMORY)
+                HL.inc();
 
-            return registers.HL;
+            return HL.get();
         }
         case 0x3:
         {
-            if (source == R16ReadSource::DEFAULT)
-                return registers.SP;
-            else if (source == R16ReadSource::STACK)
-                return registers.AF;
+            if (source == R16Source::DEFAULT)
+                return SP.get();
+            else if (source == R16Source::STACK)
+                return AF.get();
             else
             {
-                registers.HL--;
-                return registers.HL;
+                HL.dec();
+                return HL.get();
             }
+        }
+        default:
+            throw std::invalid_argument("Invalid R16 code " + std::to_string(encoded));
+        }
+    }
+
+    void CPU::setReg_16(const byte encoded, const word value, const R16Source source)
+    {
+        switch (encoded)
+        {
+        case 0x0:
+            BC.set(value);
+            break;
+        case 0x1:
+            DE.set(value);
+            break;
+        case 0x2:
+            HL.set(value);
+            break;
+        case 0x3:
+        {
+            if (source == R16Source::DEFAULT)
+                SP.set(value);
+            else if (source == R16Source::STACK)
+                AF.set(value);
+            else
+                HL.set(value);
+
+            break;
         }
         default:
             throw std::invalid_argument("Invalid R16 code " + std::to_string(encoded));
@@ -83,7 +124,7 @@ namespace emulator::components
             throw std::invalid_argument("Invalid flag code");
 
         byte mask = 1 << (flag - 4);
-        return registers.F & mask;
+        return F.get() & mask;
     }
 
     void CPU::setFlag(const byte flag, const bool newState)
@@ -91,12 +132,14 @@ namespace emulator::components
         if (flag < 4 || flag > 7)
             throw std::invalid_argument("Invalid flag code");
 
-        byte mask = 1 << (flag - 4);
+        byte mask = 1 << flag;
+
+        byte value = F.get();
 
         if (newState)
-            registers.F |= mask;
+            F.set(value | mask);
         else
-            registers.F &= ~mask;
+            F.set(value & ~mask);
     }
 
     bool CPU::getCondition(const byte encoded)
@@ -120,14 +163,16 @@ namespace emulator::components
     {
         cbFlag = false;
 
-        byte fetchedByte = bus.read(registers.PC++);
-        onFetch.notify(fetchedByte, registers.PC);
+        byte fetchedByte = bus.read(PC.get());
+        PC.inc();
+        onFetch.notify(fetchedByte, PC.get());
 
         if (state == States::FETCH && fetchedByte == 0xCB)
         {
             cbFlag = true;
-            fetchedByte = bus.read(registers.PC++);
-            onFetch.notify(fetchedByte, registers.PC);
+            fetchedByte = bus.read(PC.get());
+            PC.inc();
+            onFetch.notify(fetchedByte, PC.get());
         }
 
         state = States::EXECUTE;
@@ -138,6 +183,8 @@ namespace emulator::components
     void CPU::execute(const byte opcode)
     {
         doExecute(opcode);
+
+        onExecute.notify(opcode, PC.get());
 
         // TODO: confirm if this is accurate
         if (state == States::EXECUTE)
@@ -292,4 +339,20 @@ namespace emulator::components
         else if (state == States::EXECUTE)
             execute(fetched);
     }
+
+    word CPU::getAF() { return AF.get(); }
+    word CPU::getBC() { return BC.get(); }
+    word CPU::getDE() { return DE.get(); }
+    word CPU::getHL() { return HL.get(); }
+    word CPU::getPC() { return PC.get(); }
+    word CPU::getSP() { return SP.get(); }
+
+    byte CPU::getA() { return A.get(); }
+    byte CPU::getF() { return F.get(); }
+    byte CPU::getB() { return B.get(); }
+    byte CPU::getC() { return C.get(); }
+    byte CPU::getD() { return D.get(); }
+    byte CPU::getE() { return E.get(); }
+    byte CPU::getH() { return H.get(); }
+    byte CPU::getL() { return L.get(); }
 }
