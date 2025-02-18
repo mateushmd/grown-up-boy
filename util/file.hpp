@@ -6,5 +6,5 @@
 
 namespace util::file
 {
-    void loadFile(std::string &, std::vector<uint8_t> &);
+    int loadFile(std::string &, std::vector<uint8_t> &);
 }

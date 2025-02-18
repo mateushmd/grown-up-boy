@@ -8,7 +8,7 @@
 
 namespace util::file
 {
-    void loadFile(std::string &filePath, std::vector<uint8_t> &buffer)
+    int loadFile(std::string &filePath, std::vector<uint8_t> &buffer)
     {
         std::ifstream file(filePath, std::ios::binary);
 
@@ -22,5 +22,7 @@ namespace util::file
 
         file.read(reinterpret_cast<char *>(buffer.data()), fileSize);
         file.close();
+
+        return fileSize;
     }
 }
