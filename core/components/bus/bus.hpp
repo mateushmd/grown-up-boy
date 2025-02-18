@@ -32,6 +32,7 @@ namespace emulator::components
     public:
         Bus(bool);
 
+        void setBootRom(std::string);
         void setCartridge(std::shared_ptr<Cartridge>);
 
         byte &getCell(word);

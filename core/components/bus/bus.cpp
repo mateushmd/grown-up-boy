@@ -7,6 +7,7 @@
 #include "logger.hpp"
 #include "types.hpp"
 #include "cartridge.hpp"
+#include "file.hpp"
 
 namespace emulator::components
 {
@@ -25,6 +26,10 @@ namespace emulator::components
 
     byte &Bus::getCell(word address)
     {
+        if (address < 0x100)
+        {
+            return bootRom[address];
+        }
         if (address < 0xA000)
         {
             address -= 0x8000;
@@ -78,6 +83,11 @@ namespace emulator::components
         throw "not implemented";
     }
 
+    void Bus::setBootRom(std::string path)
+    {
+        util::file::loadFile(path, bootRom);
+    }
+
     void Bus::setCartridge(std::shared_ptr<Cartridge> cartridgePtr)
     {
         cartridge = cartridgePtr;
@@ -85,7 +95,7 @@ namespace emulator::components
 
     byte Bus::read(word address)
     {
-        if (address < 0x8000 || (address > 0x9FFF && address < 0xC000))
+        if (((address < 0x100) && (*bootRomEnabled != 0)) || (address > 0xFF && address < 0x8000) || (address > 0x9FFF && address < 0xC000))
             return cartridge->read(address);
 
         byte value = getCell(address);
@@ -94,7 +104,7 @@ namespace emulator::components
 
     void Bus::write(word address, const byte value)
     {
-        if (address < 0x8000 || (address > 0x9FFF && address < 0xC000))
+        if (((address < 0x100) && (*bootRomEnabled != 0)) || (address > 0xFF && address < 0x8000) || (address > 0x9FFF && address < 0xC000))
         {
             cartridge->write(address, value);
             return;
