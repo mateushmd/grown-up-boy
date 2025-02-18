@@ -31,7 +31,7 @@ namespace debug
 
             for (int j = 0; j < PAGEW; j++)
             {
-                int address = (i << 4) | j;
+                size_t address = (i << 4) | j;
 
                 if (address < memory->size())
                 {
@@ -43,7 +43,10 @@ namespace debug
             log << '\n';
         }
 
-        log << "Page " << std::to_string(page + 1) << "/" << std::to_string(maxPage);
+        if (maxPage == 0)
+            log << "Page 1/1";
+        else
+            log << "Page " << std::to_string(page + 1) << "/" << std::to_string(maxPage);
 
         logger::message << log.str();
     }
@@ -53,10 +56,19 @@ namespace debug
         memory = mem;
 
         maxPage = (mem->size() >> 4) / PAGEH;
+
+        if (maxPage == 0)
+            page = 0;
     }
 
     void MemoryInspector::next()
     {
+        if (maxPage == 0)
+        {
+            print();
+            return;
+        }
+
         if (page == maxPage - 1)
             throw std::logic_error("The inspector is already at the first page");
 
@@ -66,6 +78,12 @@ namespace debug
 
     void MemoryInspector::previous()
     {
+        if (maxPage == 0)
+        {
+            print();
+            return;
+        }
+
         if (page == 0)
             throw std::logic_error("The inspector is already at the last page");
 

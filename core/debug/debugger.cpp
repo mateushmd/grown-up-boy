@@ -47,36 +47,32 @@ namespace debug
 
     void Debugger::onFetch(const byte fetched, const word PC)
     {
-        logger::message << "FETCH: "
+        logger::message << "\nFETCH: \n"
                         << "Fetched Byte: 0x" << std::hex << std::uppercase << std::setfill('0')
-                        << std::setw(2) << static_cast<int>(fetched) << " "
-                        << "(Binary: " << std::bitset<8>(fetched) << "),\n"
+                        << std::setw(2) << static_cast<int>(fetched)
+                        << "(0b" << std::bitset<8>(fetched) << "),\n"
                         << "PC: 0x" << std::hex << std::setw(4) << PC
-                        << " (Binary: " << std::bitset<16>(PC) << ")";
+                        << " (0b" << std::bitset<16>(PC) << ")\n\n";
     }
 
     void Debugger::onExecute(const byte opcode, const word PC)
     {
-        logger::message << "EXECUTE: "
+        logger::message << "\nEXECUTE: \n"
                         << "Opcode: 0x" << std::hex << std::uppercase << std::setfill('0')
-                        << std::setw(2) << opcode << ",\n"
-                        << "PC: 0x" << std::hex << std::setw(4) << PC;
+                        << std::setw(2) << static_cast<int>(opcode) << ",\n"
+                        << "PC: 0x" << std::hex << std::setw(4) << PC << "\n\n";
     }
 
     void Debugger::printRegisters()
     {
-        word AF = cpu.getAF();
-        word BC = cpu.getBC();
-        word DE = cpu.getDE();
-        word HL = cpu.getHL();
         word PC = cpu.getPC();
         word SP = cpu.getSP();
 
         logger::message
-            << "AF: " << bitwise::getBits(AF) << " " << "(0x" << std::format("{:04X}", AF) << ")\n"
-            << "BC: " << bitwise::getBits(BC) << " " << "(0x" << std::format("{:04X}", BC) << ")\n"
-            << "DE: " << bitwise::getBits(DE) << " " << "(0x" << std::format("{:04X}", DE) << ")\n"
-            << "HL: " << bitwise::getBits(HL) << " " << "(0x" << std::format("{:04X}", HL) << ")\n"
+            << "AF: " << bitwise::getBits(cpu.getA()) << "  " << bitwise::getBits(cpu.getF()) << " " << "(0x" << std::format("{:04X}", cpu.getAF()) << ")\n"
+            << "BC: " << bitwise::getBits(cpu.getB()) << "  " << bitwise::getBits(cpu.getC()) << " " << "(0x" << std::format("{:04X}", cpu.getBC()) << ")\n"
+            << "DE: " << bitwise::getBits(cpu.getD()) << "  " << bitwise::getBits(cpu.getE()) << " " << "(0x" << std::format("{:04X}", cpu.getDE()) << ")\n"
+            << "HL: " << bitwise::getBits(cpu.getH()) << "  " << bitwise::getBits(cpu.getL()) << " " << "(0x" << std::format("{:04X}", cpu.getHL()) << ")\n"
             << "PC: " << bitwise::getBits(PC) << " " << "(0x" << std::format("{:04X}", PC) << ")\n"
             << "SP: " << bitwise::getBits(SP) << " " << "(0x" << std::format("{:04X}", SP) << ")\n";
     }
@@ -113,7 +109,7 @@ namespace debug
             else if (args == "wram")
                 enterMemoryState("working ram", &(bus.getWram()));
             else if (args == "ioreg")
-                enterMemoryState("i/o registers", &(bus.getIOReg()));
+                enterMemoryState("io registers", &(bus.getIOReg()));
             else if (args == "hram")
                 enterMemoryState("high ram", &(bus.getHram()));
             else if (args == "ping")
