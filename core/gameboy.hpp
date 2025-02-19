@@ -1,6 +1,8 @@
 #pragma once
 
 #include <memory>
+#include <chrono>
+#include <cstdint>
 
 #include "logger.hpp"
 #include "cpu.hpp"
@@ -45,7 +47,8 @@ namespace emulator
     class GameBoy
     {
     private:
-        bool lock;
+        std::chrono::duration<double> deltaTime;
+        bool running;
         bool cartridgeSet;
         bool bootRomSet;
 
@@ -57,65 +60,15 @@ namespace emulator
         CPU cpu;
         std::unique_ptr<Debugger> debugger;
 
-        void update()
-        {
-            if (debugger)
-                debugger->step();
-            cpu.clock();
-        }
+        void update();
 
     public:
-        GameBoy(Options options)
-            : skipBoot(hasFlag(options, Options::SKIP_BOOT)),
-              cgb(hasFlag(options, Options::CGB)),
-              debug(hasFlag(options, Options::DEBUG)),
-              bus(cgb), cpu(bus, skipBoot)
-        {
-            if (debug)
-                debugger = std::make_unique<Debugger>(cpu, bus);
-        }
+        GameBoy(Options options);
+        GameBoy(bool skipBoot, bool cgb, bool debug);
 
-        GameBoy(bool skipBoot, bool cgb, bool debug)
-            : skipBoot(skipBoot), cgb(cgb), debug(debug),
-              bus(cgb), cpu(bus, skipBoot)
-        {
-            if (debug)
-                debugger = std::make_unique<Debugger>(cpu, bus);
-        }
-
-        void setCartridge(std::string path)
-        {
-            if (lock)
-                return;
-
-            auto cartridge = getCartridge(path);
-            bus.setCartridge(cartridge);
-            cartridgeSet = true;
-        }
-
-        void setBootRom(std::string path)
-        {
-            if (lock || skipBoot)
-                return;
-
-            bus.setBootRom(path);
-            bootRomSet = true;
-        }
-
-        void start()
-        {
-            if (!cartridgeSet)
-                throw std::runtime_error("cartridge was not set");
-
-            if (!skipBoot && !bootRomSet)
-                throw std::runtime_error("boot rom was not set");
-
-            lock = true;
-
-            while (true)
-            {
-                update();
-            }
-        }
+        void setCartridge(std::string path);
+        void setBootRom(std::string path);
+        void start();
+        void mainLoop();
     };
 }

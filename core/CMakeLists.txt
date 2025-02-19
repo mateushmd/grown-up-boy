@@ -20,6 +20,8 @@ target_sources(core
         components/cartridge/cartridge_factory.cpp
         debug/debugger.cpp
         debug/memory_inspector.cpp
+        gameboy.cpp
+        time.cpp
 )
 
 target_link_libraries(core PUBLIC util)

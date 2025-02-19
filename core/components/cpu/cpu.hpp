@@ -65,6 +65,8 @@ namespace emulator::components
         // Helpers
         word fetchWord();
 
+        inline void clock();
+
 #pragma region Instructions
         void rla(const bool);
         void rra(const bool);
@@ -141,7 +143,7 @@ namespace emulator::components
 
         CPU(Bus &, bool);
 
-        void clock();
+        void update();
 
         word getAF();
         word getBC();

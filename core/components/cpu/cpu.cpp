@@ -332,12 +332,18 @@ namespace emulator::components
     }
     // clang-format on
 
-    void CPU::clock()
+    inline void CPU::clock()
     {
         if (state == States::FETCH)
             fetched = fetch();
         else if (state == States::EXECUTE)
             execute(fetched);
+    }
+
+    void CPU::update()
+    {
+        fetched = fetch();
+        execute(fetched);
     }
 
     word CPU::getAF() { return AF.get(); }
