@@ -8,9 +8,20 @@
 #include "logger.hpp"
 #include "types.hpp"
 #include "cartridge.hpp"
+#include "timer.hpp"
+#include "registers.hpp"
 
 namespace emulator::components
 {
+    constexpr size_t BOOT_SIZE = 100;
+    constexpr size_t VRAM_SIZE = 1024 * 8;
+    constexpr size_t WRAM_SIZE = 1024 * 4;
+    constexpr size_t OAM_SIZE = 160;
+    constexpr size_t HRAM_SIZE = 127;
+    constexpr size_t IOREG_SIZE = 127;
+
+    constexpr byte DIV_ADDR = 0x0004;
+
     class Bus
     {
     private:
@@ -21,13 +32,14 @@ namespace emulator::components
         std::vector<byte> wram;
         std::vector<byte> oam;
         std::vector<byte> hram;
-        std::vector<byte> ioReg;
+
+        Register8 JOYP, TIMA, TMA, TAC, IF, LCDC, STAT, SCY, SCX, LY, LYC, DMA,
+            BGP, OBP0, OBP1, WY, WX, KEY1, VBK, BootEnabled, HDMA1, HDMA2, HDMA3,
+            HDMA4, HDMA5, BCPS, BCPD, OCPS, OCPD, SVBK, IE;
+
+        Register16 DIV;
 
         std::shared_ptr<Cartridge> cartridge;
-
-        const byte *activeWramBank = nullptr;
-        const byte *activeVramBank = nullptr;
-        const byte *bootRomEnabled = nullptr;
 
     public:
         Bus(bool);
@@ -38,14 +50,18 @@ namespace emulator::components
         byte &getCell(word);
         byte read(word);
         void write(word, const byte);
+        byte readRegister(word);
+        void writeRegister(word, const byte);
 
-        const std::vector<byte> &getBootRom() const;
-        const std::vector<byte> &getCartridgeRom() const;
-        const std::vector<byte> &getVram() const;
-        const std::vector<byte> &getCartridgeRam() const;
-        const std::vector<byte> &getWram() const;
-        const std::vector<byte> &getOam() const;
-        const std::vector<byte> &getIOReg() const;
-        const std::vector<byte> &getHram() const;
+        void attatchTimer();
+
+        const std::vector<byte> &getBootRom();
+        const std::vector<byte> &getCartridgeRom();
+        const std::vector<byte> &getVram();
+        const std::vector<byte> &getCartridgeRam();
+        const std::vector<byte> &getWram();
+        const std::vector<byte> &getOam();
+        const std::vector<byte> getIOReg();
+        const std::vector<byte> &getHram();
     };
 }
