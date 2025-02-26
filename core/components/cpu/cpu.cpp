@@ -3,6 +3,7 @@
 
 #include "cpu.hpp"
 #include "registers.hpp"
+#include "cycles.hpp"
 
 namespace emulator::components
 {
@@ -180,8 +181,10 @@ namespace emulator::components
         return fetchedByte;
     }
 
-    void CPU::execute(const byte opcode)
+    byte CPU::execute(const byte opcode)
     {
+        branch = false;
+
         doExecute(opcode);
 
         onExecute.notify(opcode, PC.get());
@@ -189,6 +192,13 @@ namespace emulator::components
         // TODO: confirm if this is accurate
         if (state == States::EXECUTE)
             state = States::FETCH;
+
+        if (cbFlag)
+            return cbCycles[opcode];
+        else if (branch)
+            return branchedCycles[opcode];
+
+        return cycles[opcode];
     }
 
     // clang-format off
@@ -343,7 +353,8 @@ namespace emulator::components
     void CPU::update()
     {
         fetched = fetch();
-        execute(fetched);
+        byte clocksTaken = execute(fetched);
+        onUpdate.notify(clocksTaken);
     }
 
     word CPU::getAF() { return AF.get(); }

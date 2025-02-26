@@ -369,7 +369,10 @@ namespace emulator::components
         const word value = fetchWord();
 
         if (getCondition(encodedCondition))
+        {
             PC.set(value);
+            branch = true;
+        }
     }
     void CPU::jr_cond_imm8(const byte opcode)
     {
@@ -377,7 +380,10 @@ namespace emulator::components
         const sbyte offset = static_cast<sbyte>(fetch());
 
         if (getCondition(encodedCondition))
+        {
             PC.set(PC.get() + offset);
+            branch = true;
+        }
     }
     void CPU::call_cond_imm16(const byte opcode)
     {
@@ -387,6 +393,8 @@ namespace emulator::components
 
         if (!getCondition(encodedCondition))
             return;
+
+        branch = true;
 
         const byte low = static_cast<byte>(PC.get());
         const byte high = static_cast<byte>(PC.get() >> 8);
@@ -404,6 +412,8 @@ namespace emulator::components
 
         if (!getCondition(encodedCondition))
             return;
+
+        branch = true;
 
         const byte low = bus.read(SP.get());
         SP.inc();

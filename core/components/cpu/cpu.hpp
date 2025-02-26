@@ -27,13 +27,13 @@ namespace emulator::components
         MEMORY
     };
 
+    constexpr byte CARRY = 0x4;
+    constexpr byte HALF_CARRY = 0x5;
+    constexpr byte SUBTRACTION = 0x6;
+    constexpr byte ZERO = 0x7;
+
     class CPU
     {
-        static constexpr byte CARRY = 0x4;
-        static constexpr byte HALF_CARRY = 0x5;
-        static constexpr byte SUBTRACTION = 0x6;
-        static constexpr byte ZERO = 0x7;
-
     private:
         Register8 A, F, B, C, D, E, H, L, IE;
         Register16 PC, SP;
@@ -48,6 +48,8 @@ namespace emulator::components
 
         byte fetched;
 
+        bool branch;
+
         byte getReg_8(const byte);
         word getReg_16(const byte, const R16Source);
 
@@ -59,7 +61,7 @@ namespace emulator::components
         bool getCondition(const byte);
 
         byte fetch();
-        void execute(const byte);
+        byte execute(const byte);
         void doExecute(const byte);
 
         // Helpers
@@ -139,6 +141,7 @@ namespace emulator::components
     public:
         util::Event<byte, word> onFetch;
         util::Event<byte, word> onExecute;
+        util::Event<byte> onUpdate;
         util::Event<> onHalt;
 
         CPU(Bus &, bool);
