@@ -9,41 +9,29 @@ namespace emulator::components
     template <typename T>
     class Register
     {
+    protected:
+        T value = 0;
+
     public:
+        Register() = default;
         virtual ~Register() = default;
 
-        virtual T get() = 0;
-        virtual void set(const T) = 0;
-        virtual void inc() = 0;
-        virtual void dec() = 0;
+        virtual T get() { return value; };
+        virtual void set(const T rvalue) { value = rvalue; };
+        virtual void inc() { ++value; };
+        virtual void dec() { --value; };
     };
 
     class Register8 : public Register<byte>
     {
-    private:
-        byte value;
-
     public:
-        Register8() = default;
-
-        byte get() override;
-        void set(const byte) override;
-        void inc() override;
-        void dec() override;
+        using Register::Register;
     };
 
     class Register16 : public Register<word>
     {
-    private:
-        word value;
-
     public:
-        Register16() = default;
-
-        word get() override;
-        void set(const word) override;
-        void inc() override;
-        void dec() override;
+        using Register::Register;
     };
 
     class RegisterPair : public Register<word>

@@ -5,15 +5,6 @@
 
 namespace emulator::components
 {
-    byte Register8::get() { return value; }
-    void Register8::set(const byte rvalue) { value = rvalue; }
-    void Register8::inc() { ++value; }
-    void Register8::dec() { --value; }
-
-    word Register16::get() { return value; }
-    void Register16::set(const word rvalue) { value = rvalue; }
-    void Register16::inc() { ++value; }
-    void Register16::dec() { --value; }
 
     RegisterPair::RegisterPair(Register8 &high, Register8 &low)
         : hi(high), lo(low) {}
