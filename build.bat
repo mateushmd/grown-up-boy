@@ -13,14 +13,12 @@ mkdir "%BUILD_DIR%"
 cd "%BUILD_DIR%"
 
 echo Generating build files...
-cmake -DCMAKE_BUILD_TYPE=Debug .. -G Ninja
+cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=%~dp0/_vendor/sdl3-src/build .. -G Ninja
 
 echo Building the project...
 REM ninja > build.log 2>&1  
 ninja
 
 cd ..
-
-copy _vendor\sdl3-build\SDL3.dll build 
 
 echo Build process complete.
