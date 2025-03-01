@@ -52,7 +52,7 @@ namespace debug
         Debugger(CPU &, Bus &);
         void step();
         void onFetch(const byte, const word);
-        void onExecute(const byte, const word);
+        void onExecute(const byte, const byte, const word);
         void onHalt();
 
         void setMode(const DebuggerMode);

@@ -23,8 +23,8 @@ namespace debug
 
         cpu.onFetch.subscribe([this](byte fetched, word PC)
                               { this->onFetch(fetched, PC); });
-        cpu.onExecute.subscribe([this](byte opcode, word PC)
-                                { this->onExecute(opcode, PC); });
+        cpu.onExecute.subscribe([this](byte opcode, byte mCycles, word PC)
+                                { this->onExecute(opcode, mCycles, PC); });
     }
 
     void Debugger::step()
@@ -55,11 +55,11 @@ namespace debug
                         << " (0b" << std::bitset<16>(PC) << ")\n\n";
     }
 
-    void Debugger::onExecute(const byte opcode, const word PC)
+    void Debugger::onExecute(const byte opcode, const byte mCycles, const word PC)
     {
         logger::message << "\nEXECUTE: \n"
                         << "Opcode: 0x" << std::hex << std::uppercase << std::setfill('0')
-                        << std::setw(2) << static_cast<int>(opcode) << ",\n"
+                        << std::setw(2) << static_cast<int>(opcode) << " (" << mCycles << "),\n"
                         << "PC: 0x" << std::hex << std::setw(4) << PC << "\n\n";
     }
 
@@ -99,19 +99,19 @@ namespace debug
             else if (args == "reg")
                 printRegisters();
             else if (args == "brom")
-                enterMemoryState("boot rom", &(bus.getBootRom()));
+                enterMemoryState("boot rom", bus.getBootRom());
             else if (args == "crom")
-                enterMemoryState("cartridge rom", &(bus.getCartridgeRom()));
+                enterMemoryState("cartridge rom", bus.getCartridgeRom());
             else if (args == "vram")
-                enterMemoryState("video ram", &(bus.getVram()));
+                enterMemoryState("video ram", bus.getVram());
             else if (args == "cram")
-                enterMemoryState("cartridge ram", &(bus.getCartridgeRam()));
+                enterMemoryState("cartridge ram", bus.getCartridgeRam());
             else if (args == "wram")
-                enterMemoryState("working ram", &(bus.getWram()));
+                enterMemoryState("working ram", bus.getWram());
             else if (args == "ioreg")
-                enterMemoryState("io registers", &(bus.getIOReg()));
+                enterMemoryState("io registers", bus.getIOReg());
             else if (args == "hram")
-                enterMemoryState("high ram", &(bus.getHram()));
+                enterMemoryState("high ram", bus.getHram());
             else if (args == "ping")
                 logger::message << "pong\n";
             else

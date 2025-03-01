@@ -3,8 +3,9 @@
 #include <array>
 
 #include "types.hpp"
+#include "event.hpp"
 
-namespace emulator::components
+namespace emulator
 {
     template <typename T>
     class Register
@@ -13,13 +14,27 @@ namespace emulator::components
         T value = 0;
 
     public:
+        util::Event<byte> onChange;
+
         Register() = default;
         virtual ~Register() = default;
 
         virtual T get() { return value; };
-        virtual void set(const T rvalue) { value = rvalue; };
-        virtual void inc() { ++value; };
-        virtual void dec() { --value; };
+        virtual void set(const T rvalue)
+        {
+            value = rvalue;
+            onChange.notify(value);
+        };
+        virtual void inc()
+        {
+            ++value;
+            onChange.notify(value);
+        };
+        virtual void dec()
+        {
+            --value;
+            onChange.notify(value);
+        };
     };
 
     class Register8 : public Register<byte>

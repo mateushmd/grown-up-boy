@@ -7,7 +7,8 @@ namespace emulator
     {
         if (debugger)
             debugger->step();
-        cpu.update();
+        auto elapsedCycles = cpu.update();
+        timer->update(elapsedCycles);
     }
 
     GameBoy::GameBoy(Options options)
@@ -16,6 +17,8 @@ namespace emulator
           debug(hasFlag(options, Options::DEBUG)),
           bus(cgb), cpu(bus, skipBoot)
     {
+        timer = bus.getTimer();
+
         if (debug)
             debugger = std::make_unique<Debugger>(cpu, bus);
     }
@@ -24,6 +27,8 @@ namespace emulator
         : skipBoot(skipBoot), cgb(cgb), debug(debug),
           bus(cgb), cpu(bus, skipBoot)
     {
+        timer = bus.getTimer();
+
         if (debug)
             debugger = std::make_unique<Debugger>(cpu, bus);
     }

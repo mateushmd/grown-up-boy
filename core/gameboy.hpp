@@ -58,6 +58,8 @@ namespace emulator
 
         Bus bus;
         CPU cpu;
+        std::unique_ptr<Timer> timer;
+
         std::unique_ptr<Debugger> debugger;
 
         void update();

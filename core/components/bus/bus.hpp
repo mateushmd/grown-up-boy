@@ -32,6 +32,7 @@ namespace emulator::components
         std::vector<byte> wram;
         std::vector<byte> oam;
         std::vector<byte> hram;
+        std::vector<byte> ioReg;
 
         Register8 JOYP, TIMA, TMA, TAC, IF, LCDC, STAT, SCY, SCX, LY, LYC, DMA,
             BGP, OBP0, OBP1, WY, WX, KEY1, VBK, BootEnabled, HDMA1, HDMA2, HDMA3,
@@ -40,6 +41,8 @@ namespace emulator::components
         Register16 DIV;
 
         std::shared_ptr<Cartridge> cartridge;
+
+        bool dmaTransfer;
 
     public:
         Bus(bool);
@@ -51,17 +54,17 @@ namespace emulator::components
         byte read(word);
         void write(word, const byte);
         byte readRegister(word);
-        void writeRegister(word, const byte);
+        void writeRegister(word, byte);
 
-        void attatchTimer();
+        std::unique_ptr<Timer> getTimer();
 
-        const std::vector<byte> &getBootRom();
-        const std::vector<byte> &getCartridgeRom();
-        const std::vector<byte> &getVram();
-        const std::vector<byte> &getCartridgeRam();
-        const std::vector<byte> &getWram();
-        const std::vector<byte> &getOam();
-        const std::vector<byte> getIOReg();
-        const std::vector<byte> &getHram();
+        const std::vector<byte> *getBootRom();
+        const std::vector<byte> *getCartridgeRom();
+        const std::vector<byte> *getVram();
+        const std::vector<byte> *getCartridgeRam();
+        const std::vector<byte> *getWram();
+        const std::vector<byte> *getOam();
+        const std::vector<byte> *getIOReg();
+        const std::vector<byte> *getHram();
     };
 }

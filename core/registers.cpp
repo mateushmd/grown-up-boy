@@ -3,7 +3,7 @@
 #include "registers.hpp"
 #include "types.hpp"
 
-namespace emulator::components
+namespace emulator
 {
 
     RegisterPair::RegisterPair(Register8 &high, Register8 &low)

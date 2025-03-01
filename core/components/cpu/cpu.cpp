@@ -187,18 +187,22 @@ namespace emulator::components
 
         doExecute(opcode);
 
-        onExecute.notify(opcode, PC.get());
-
         // TODO: confirm if this is accurate
         if (state == States::EXECUTE)
             state = States::FETCH;
 
-        if (cbFlag)
-            return cbCycles[opcode];
-        else if (branch)
-            return branchedCycles[opcode];
+        byte mCycles = 0;
 
-        return cycles[opcode];
+        if (cbFlag)
+            mCycles = cbCycles[opcode];
+        else if (branch)
+            mCycles = branchedCycles[opcode];
+        else
+            mCycles = cycles[opcode];
+
+        onExecute.notify(opcode, mCycles, PC.get());
+
+        return mCycles;
     }
 
     // clang-format off
@@ -350,11 +354,12 @@ namespace emulator::components
             execute(fetched);
     }
 
-    void CPU::update()
+    byte CPU::update()
     {
         fetched = fetch();
-        byte clocksTaken = execute(fetched);
-        onUpdate.notify(clocksTaken);
+        byte cyclesTaken = execute(fetched);
+        onUpdate.notify(cyclesTaken);
+        return cyclesTaken;
     }
 
     word CPU::getAF() { return AF.get(); }

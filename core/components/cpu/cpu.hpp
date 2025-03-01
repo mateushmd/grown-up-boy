@@ -140,13 +140,13 @@ namespace emulator::components
 
     public:
         util::Event<byte, word> onFetch;
-        util::Event<byte, word> onExecute;
+        util::Event<byte, byte, word> onExecute;
         util::Event<byte> onUpdate;
         util::Event<> onHalt;
 
         CPU(Bus &, bool);
 
-        void update();
+        byte update();
 
         word getAF();
         word getBC();
