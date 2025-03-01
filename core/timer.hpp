@@ -1,23 +1,34 @@
+#pragma once
+
 #include "types.hpp"
+#include "registers.hpp"
+#include "event.hpp"
 
 namespace emulator
 {
-    constexpr byte DIV_TARGET = 256;
+    constexpr int DIV_TARGET = 256;
 
     class Timer
     {
     private:
-        unsigned int divCounter;
         unsigned int timaCounter;
 
-        byte *const div, tima;
-        const byte *const tma, tac;
+        bool stop;
+
+        byte oldTmaValue;
+
+        Register16 &DIV;
+        Register8 &TIMA, &TMA, &TAC;
+
+        bool timaOverflow;
 
         unsigned int getFrequency();
 
     public:
-        Timer(byte *const, byte *const, const byte *const, const byte *const);
+        util::Event<> onTimaOverflow;
 
-        void update(const unsigned int);
+        Timer(Register16 &, Register8 &, Register8 &, Register8 &);
+
+        void update(const byte);
     };
 }
