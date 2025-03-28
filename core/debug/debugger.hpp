@@ -5,8 +5,10 @@
 #include "types.hpp"
 #include "cpu.hpp"
 #include "bus.hpp"
+#include "timer.hpp"
 #include "memory_inspector.hpp"
 
+using namespace emulator;
 using namespace emulator::components;
 
 namespace debug
@@ -49,10 +51,11 @@ namespace debug
         std::vector<std::string> splitArgs(std::string &);
 
     public:
-        Debugger(CPU &, Bus &);
+        Debugger(CPU &, Bus &, Timer &);
         void step();
         void onFetch(const byte, const word);
         void onExecute(const byte, const byte, const word);
+        void onTimerUpdate(const word, const byte);
         void onHalt();
 
         void setMode(const DebuggerMode);

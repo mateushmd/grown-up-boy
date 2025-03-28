@@ -3,21 +3,24 @@
 #include <sstream>
 #include <bitset>
 #include <format>
+#include <string>
 
 #include "debugger.hpp"
 #include "types.hpp"
 #include "bitwise.hpp"
 #include "cpu.hpp"
 #include "bus.hpp"
+#include "timer.hpp"
 #include "logger.hpp"
 
+using namespace emulator;
 using namespace emulator::components;
 using namespace util;
 
 namespace debug
 {
-    Debugger::Debugger(CPU &cpu, Bus &bus) : cpu(cpu),
-                                             bus(bus)
+    Debugger::Debugger(CPU &cpu, Bus &bus, Timer &timer) : cpu(cpu),
+                                                           bus(bus)
     {
         mode = DebuggerMode::DIRECT;
 
@@ -25,6 +28,8 @@ namespace debug
                               { this->onFetch(fetched, PC); });
         cpu.onExecute.subscribe([this](byte opcode, byte mCycles, word PC)
                                 { this->onExecute(opcode, mCycles, PC); });
+        timer.onUpdate.subscribe([this](word div, byte tima)
+                                 { this->onTimerUpdate(div, tima); });
     }
 
     void Debugger::step()
@@ -48,19 +53,27 @@ namespace debug
     void Debugger::onFetch(const byte fetched, const word PC)
     {
         logger::message << "\nFETCH: \n"
-                        << "Fetched Byte: 0x" << std::hex << std::uppercase << std::setfill('0')
+                        << "0x" << std::hex << std::uppercase << std::setfill('0')
                         << std::setw(2) << static_cast<int>(fetched)
                         << "(0b" << std::bitset<8>(fetched) << "),\n"
                         << "PC: 0x" << std::hex << std::setw(4) << PC
-                        << " (0b" << std::bitset<16>(PC) << ")\n\n";
+                        << " (0b" << std::bitset<16>(PC) << ")\n";
     }
 
     void Debugger::onExecute(const byte opcode, const byte mCycles, const word PC)
     {
         logger::message << "\nEXECUTE: \n"
-                        << "Opcode: 0x" << std::hex << std::uppercase << std::setfill('0')
-                        << std::setw(2) << static_cast<int>(opcode) << " (" << mCycles << "),\n"
-                        << "PC: 0x" << std::hex << std::setw(4) << PC << "\n\n";
+                        << "0x" << std::hex << std::uppercase << std::setfill('0')
+                        << std::setw(2) << static_cast<int>(opcode) << "\n"
+                        << "PC: 0x" << std::hex << std::setw(4) << PC << "\n"
+                        << std::to_string(mCycles) << " M-cycles (" << std::to_string(mCycles * 4) << " T-cycles)\n";
+    }
+
+    void Debugger::onTimerUpdate(const word div, const byte tima)
+    {
+        logger::message << "\nTIMER UPDATE: \n"
+                        << "DIV: 0x" << std::hex << std::uppercase << div << "(" << std::bitset<16>(div) << ")\n"
+                        << "TIMA: 0x" << std::hex << std::uppercase << tima << "(" << std::bitset<8>(div) << ")\n";
     }
 
     void Debugger::printRegisters()

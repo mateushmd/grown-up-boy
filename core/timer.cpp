@@ -43,5 +43,7 @@ namespace emulator
         }
 
         oldTmaValue = TMA.get();
+
+        onUpdate.notify(DIV.get(), TIMA.get());
     }
 }

@@ -26,6 +26,7 @@ namespace emulator
 
     public:
         util::Event<> onTimaOverflow;
+        util::Event<word, byte> onUpdate;
 
         Timer(Register16 &, Register8 &, Register8 &, Register8 &);
 

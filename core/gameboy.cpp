@@ -20,7 +20,7 @@ namespace emulator
         timer = bus.getTimer();
 
         if (debug)
-            debugger = std::make_unique<Debugger>(cpu, bus);
+            debugger = std::make_unique<Debugger>(cpu, bus, *timer);
     }
 
     GameBoy::GameBoy(bool skipBoot, bool cgb, bool debug)
@@ -30,7 +30,7 @@ namespace emulator
         timer = bus.getTimer();
 
         if (debug)
-            debugger = std::make_unique<Debugger>(cpu, bus);
+            debugger = std::make_unique<Debugger>(cpu, bus, *timer);
     }
 
     void GameBoy::setCartridge(std::string path)
