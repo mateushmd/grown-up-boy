@@ -10,12 +10,18 @@ The project requires `CMake` and `SDL3` to compile.
 
 For faster compilation, consider using `Ninja` as the build system.
 
-### Windows
-
-You can optionally use the following script to build the project:
-``` batch
-build.bat
-```
 ### Linux
 
-There is currently no automated build script for Linux, nor full assurance that the project can be compiled and run. However, I am working on it.
+Run the `build.sh` script an automated build with `Ninja`:
+
+```
+./build.sh
+```
+
+If you are using the `Nix` package manager, run: 
+
+```
+nix-shell
+```
+
+in the project's root directory to resolve all dependencies automatically.
