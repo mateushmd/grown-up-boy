@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#include "../event.hpp"
+#include "event.hpp"
 
 namespace gameboy
 {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <expected>
 #include <memory>
 #include <string>
 #include <vector>
@@ -18,7 +19,7 @@ constexpr size_t IOREG_SIZE = 127;
 
 constexpr uint8_t DIV_ADDR = 0x0004;
 
-class Bus
+class Memory
 {
   private:
     bool cgbMode;
@@ -41,16 +42,16 @@ class Bus
     bool dmaTransfer;
 
   public:
-    Bus(bool);
+    Memory(bool);
 
     void setBootRom(std::string);
     void setCartridge(std::shared_ptr<Cartridge>);
 
     uint8_t &getCell(uint16_t);
-    uint8_t read(uint16_t);
+    std::expected<uint8_t, std::string> read(uint16_t);
     void write(uint16_t, const uint8_t);
-    uint8_t readRegister(uint16_t);
-    void writeRegister(uint16_t, uint8_t);
+    std::expected<uint8_t, std::string> readRegister(uint16_t);
+    std::expected<void, std::string> writeRegister(uint16_t, uint8_t);
 
     std::unique_ptr<Timer> getTimer();
 

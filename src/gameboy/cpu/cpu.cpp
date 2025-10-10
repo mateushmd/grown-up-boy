@@ -44,8 +44,8 @@ const uint8_t cbCycles[] = {
 
 namespace gameboy
 {
-CPU::CPU(Bus &bus, bool skipBoot)
-    : bus(bus), AF(A, F), BC(B, C), DE(D, E), HL(H, L)
+CPU::CPU(Memory &memory, bool skipBoot)
+    : memory(memory), AF(A, F), BC(B, C), DE(D, E), HL(H, L)
 {
     // TODO: check IME initial state
     IME = 0;
@@ -64,7 +64,7 @@ uint8_t CPU::getReg_8(const uint8_t encoded)
     case 0x3: return E;
     case 0x4: return H;
     case 0x5: return L;
-    case 0x6: return bus.getCell(HL.get());
+    case 0x6: return memory.getCell(HL.get());
     case 0x7: return A;
     default: throw std::invalid_argument("Invalid register code");
         // clang-format on
@@ -82,7 +82,7 @@ void CPU::setReg_8(const uint8_t encoded, const uint8_t value)
     case 0x3: E = value; break;
     case 0x4: H = value; break;
     case 0x5: L = value; break;
-    case 0x6: bus.getCell(HL.get()) = value; break;
+    case 0x6: memory.getCell(HL.get()) = value; break;
     case 0x7: A = value; break;
     default: throw std::invalid_argument("Invalid register code");
         // clang-format on
@@ -207,14 +207,14 @@ uint8_t CPU::fetch()
 {
     cbFlag = false;
 
-    uint8_t fetcheduint8_t = bus.read(PC);
+    uint8_t fetcheduint8_t = memory.read(PC);
     PC++;
     onFetch.notify(fetcheduint8_t, PC);
 
     if (state == States::FETCH && fetcheduint8_t == 0xCB)
     {
         cbFlag = true;
-        fetcheduint8_t = bus.read(PC);
+        fetcheduint8_t = memory.read(PC);
         PC++;
         onFetch.notify(fetcheduint8_t, PC);
     }

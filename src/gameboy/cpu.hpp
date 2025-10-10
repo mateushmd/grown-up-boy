@@ -2,9 +2,9 @@
 
 #include <cstdint>
 
-#include "../event.hpp"
-#include "bus.hpp"
 #include "cpu/register_pair.hpp"
+#include "event.hpp"
+#include "memory.hpp"
 
 namespace gameboy
 {
@@ -37,7 +37,7 @@ class CPU
 
     bool IME;
 
-    Bus &bus;
+    Memory &memory;
 
     bool cbFlag;
     States state;
@@ -138,7 +138,7 @@ class CPU
     util::Event<uint8_t> onUpdate;
     util::Event<> onHalt;
 
-    CPU(Bus &, bool);
+    CPU(Memory &, bool);
 
     uint8_t update();
 

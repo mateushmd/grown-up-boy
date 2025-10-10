@@ -1,28 +1,22 @@
-add_library(core)
+add_subdirectory(cartridge)
+add_subdirectory(cartridge_factory)
+add_subdirectory(cpu)
+add_subdirectory(memory)
+add_subdirectory(timer)
 
-target_include_directories(core
-    PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/components>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/components/bus>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/components/cpu>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/components/cartridge>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/debug>
+add_library(gameboy_lib STATIC
+    gameboy.cpp
 )
 
-target_sources(core
-    PRIVATE
-        time.cpp
-        registers.cpp
-        timer.cpp
-        components/bus/bus.cpp
-        components/cpu/cpu.cpp
-        components/cpu/instructions.cpp
-        components/cartridge/cartridge.cpp
-        components/cartridge/cartridge_factory.cpp
-        debug/debugger.cpp
-        debug/memory_inspector.cpp
-        gameboy.cpp
+target_link_libraries(gameboy_lib PUBLIC
+    cartridge_lib
+    cartridge_factory_lib
+    cpu_lib
+    memory_lib
+    timer_lib
 )
 
-target_link_libraries(core PUBLIC util)
+target_include_directories(gameboy_lib PUBLIC
+    "${CMAKE_CURRENT_SOURCE_DIR}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/.."
+)

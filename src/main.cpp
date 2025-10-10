@@ -1,7 +1,4 @@
-#include <iostream>
-#include <thread>
 #include <atomic>
-#include <chrono>
 #include <string>
 
 #define SDL_MAIN_HANDLED
@@ -9,12 +6,9 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
-#include "logger.hpp"
-#include "window.hpp"
-#include "gameboy.hpp"
 #include "cli.hpp"
-
-using namespace Devices;
+#include "gameboy.hpp"
+#include "logger.hpp"
 
 constexpr int WIDTH = 160;
 constexpr int HEIGHT = 144;
@@ -28,7 +22,8 @@ bool init(SDL_Window **window, SDL_Surface **surface)
         return false;
     }
 
-    *window = SDL_CreateWindow("Grown Up Boy!", WIDTH * SCALE, HEIGHT * SCALE, 0);
+    *window =
+        SDL_CreateWindow("Grown Up Boy!", WIDTH * SCALE, HEIGHT * SCALE, 0);
 
     if (*window == nullptr)
     {
@@ -70,10 +65,11 @@ int main(int argc, char **argv)
             showHelp();
             return 0;
         }
-        
-        emulator::GameBoy gb(profile.skipBoot, profile.cgb, profile.debug);
+
+        gameboy::GameBoy gb(profile.skipBoot, profile.cgb, profile.debug);
         gb.setCartridge(profile.cartridge);
-        if(!profile.skipBoot) gb.setBootRom(profile.bootRom);
+        if (!profile.skipBoot)
+            gb.setBootRom(profile.bootRom);
         gb.start();
     }
     catch (const std::exception &e)

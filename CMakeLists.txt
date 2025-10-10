@@ -12,21 +12,4 @@ else()
     add_compile_options(-Wall -Wextra -pedantic)
 endif()
 
-find_package(SDL3 REQUIRED CONFIG COMPONENTS SDL3-shared)
-
-add_subdirectory(core ${CMAKE_CURRENT_BINARY_DIR}/core-build) 
-add_subdirectory(devices ${CMAKE_CURRENT_BINARY_DIR}/devices-build)
-add_subdirectory(util ${CMAKE_CURRENT_BINARY_DIR}/util-build)
-
-add_executable(gub main/main.cpp)
-
-target_link_libraries(gub PRIVATE util core devices)
-target_link_libraries(gub PRIVATE SDL3::SDL3)
-
-if(WIN32)
-    add_custom_command(
-        TARGET gub POST_BUILD
-        COMMAND "${CMAKE_COMMAND}" -E copy $<TARGET_FILE:SDL3::SDL3-shared> $<TARGET_FILE_DIR:gub>
-        VERBATIM
-    )
-endif()
+add_subdirectory(src) 

@@ -72,7 +72,7 @@ class MBC1 : public Cartridge
          std::shared_ptr<std::vector<uint8_t>>,
          std::shared_ptr<std::vector<uint8_t>>);
 
-    uint8_t read(uint16_t);
+    uint8_t read(uint16_t) override;
     void write(uint16_t, uint8_t) override;
 };
 
