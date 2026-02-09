@@ -6,22 +6,7 @@ This emulator is a personal project focused on learning and experimentation. It 
 
 
 ## Building
-The project requires `CMake` and `SDL3` to compile.
 
-For faster compilation, consider using `Ninja` as the build system.
+The project is currently undergoing a major architectural overhaul.
 
-### Linux
-
-Run the `build.sh` script an automated build with `Ninja`:
-
-```
-./build.sh
-```
-
-If you are using the `Nix` package manager, run: 
-
-```
-nix-shell
-```
-
-in the project's root directory to resolve all dependencies automatically.
+I decided to hit the brakes on new features to refactor the core codebase and clean up the old mess. Check back soon for a more stable (and much cleaner) release!
