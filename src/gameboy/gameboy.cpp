@@ -1,4 +1,4 @@
-#include "../gameboy.hpp"
+#include "gameboy.hpp"
 #include "time.hpp"
 
 namespace gameboy

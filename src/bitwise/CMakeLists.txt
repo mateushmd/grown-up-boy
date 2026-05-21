@@ -1,7 +1,6 @@
-add_library(bitwise_lib STATIC
-    bitwise.cpp
-)
+add_library(bitwise STATIC bitwise.cpp)
 
-target_include_directories(bitwise_lib PUBLIC
-    "${CMAKE_CURRENT_SOURCE_DIR}/.."
+target_include_directories(bitwise 
+    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/.."
+    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
 )

@@ -8,8 +8,8 @@ add_executable(gub
 )
 
 target_link_libraries(gub PRIVATE
-    bitwise_mod
-    file_mod
-    gameboy_mod
-    time_mod
+    bitwise
+    file
+    gameboy
+    time
 )

@@ -4,9 +4,9 @@
 #include <string>
 #include <vector>
 
-#include "../../file.hpp"
-#include "../cartridge.hpp"
-#include "../cartridge_factory.hpp"
+#include "cartridge.hpp"
+#include "cartridge_factory.hpp"
+#include "file.hpp"
 
 namespace gameboy
 {

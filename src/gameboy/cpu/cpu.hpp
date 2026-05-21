@@ -2,9 +2,9 @@
 
 #include <cstdint>
 
-#include "cpu/register_pair.hpp"
 #include "event.hpp"
 #include "memory.hpp"
+#include "register_pair.hpp"
 
 namespace gameboy
 {
@@ -56,12 +56,12 @@ class CPU
     void setFlag(const uint8_t, const bool);
     bool getCondition(const uint8_t);
 
-    uint8_t fetch();
+    std::expected<uint8_t, std::string> fetch();
     uint8_t execute(const uint8_t);
     void doExecute(const uint8_t);
 
     // Helpers
-    uint16_t fetchWord();
+    std::expected<uint16_t, std::string> fetchWord();
 
     inline void clock();
 

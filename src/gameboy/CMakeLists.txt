@@ -4,19 +4,17 @@ add_subdirectory(cpu)
 add_subdirectory(memory)
 add_subdirectory(timer)
 
-add_library(gameboy_lib STATIC
-    gameboy.cpp
+add_library(gameboy STATIC gameboy.cpp)
+
+target_link_libraries(gameboy PUBLIC
+    cartridge
+    cartridge_factory
+    cpu
+    memory
+    timer
 )
 
-target_link_libraries(gameboy_lib PUBLIC
-    cartridge_lib
-    cartridge_factory_lib
-    cpu_lib
-    memory_lib
-    timer_lib
-)
-
-target_include_directories(gameboy_lib PUBLIC
-    "${CMAKE_CURRENT_SOURCE_DIR}"
-    "${CMAKE_CURRENT_SOURCE_DIR}/.."
+target_include_directories(gameboy 
+    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/.."
+    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
 )

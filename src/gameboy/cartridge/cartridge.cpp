@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "../cartridge.hpp"
+#include "cartridge.hpp"
 
 namespace gameboy
 {

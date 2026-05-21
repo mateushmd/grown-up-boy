@@ -1,6 +1,6 @@
 #include <cstdint>
 
-#include "../register_pair.hpp"
+#include "register_pair.hpp"
 
 namespace gameboy::cpu
 {

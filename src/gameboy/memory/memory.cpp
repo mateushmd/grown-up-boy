@@ -4,10 +4,10 @@
 #include <string>
 #include <vector>
 
-#include "../../file.hpp"
-#include "../cartridge.hpp"
-#include "../memory.hpp"
-#include "../timer.hpp"
+#include "cartridge.hpp"
+#include "file.hpp"
+#include "memory.hpp"
+#include "timer.hpp"
 
 namespace gameboy
 {

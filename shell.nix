@@ -6,7 +6,4 @@ pkgs.mkShell {
     ninja
     sdl3
   ];
-  shellHook = ''
-    
-  '';
 }

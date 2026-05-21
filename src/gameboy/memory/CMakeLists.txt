@@ -1,7 +1,6 @@
-add_library(memory_lib STATIC
-    memory.cpp
-)
+add_library(memory STATIC memory.cpp)
 
-target_include_directories(memory_lib PUBLIC
-    "${CMAKE_CURRENT_SOURCE_DIR}/.."
+target_include_directories(memory 
+    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../.."
+    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
 )

@@ -1,7 +1,6 @@
-add_library(cartridge_lib STATIC
-    cartridge.cpp
-)
+add_library(cartridge STATIC cartridge.cpp)
 
-target_include_directories(cartridge_lib PUBLIC
-    "${CMAKE_CURRENT_SOURCE_DIR}/.."
+target_include_directories(cartridge 
+    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../.."
+    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
 )

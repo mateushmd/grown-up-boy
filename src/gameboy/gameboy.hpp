@@ -3,10 +3,10 @@
 #include <chrono>
 #include <cstdint>
 
-#include "gameboy/cartridge.hpp"
-#include "gameboy/cartridge_factory.hpp"
-#include "gameboy/cpu.hpp"
-#include "gameboy/memory.hpp"
+#include "cartridge.hpp"
+#include "cartridge_factory.hpp"
+#include "cpu.hpp"
+#include "memory.hpp"
 
 namespace gameboy
 {

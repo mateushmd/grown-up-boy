@@ -1,7 +1,8 @@
 #include <cmath>
+#include <expected>
 #include <iostream>
 
-#include "../cpu.hpp"
+#include "cpu.hpp"
 
 const uint8_t cycles[] = {
     1, 3, 2, 2, 1, 1, 2, 1, 5, 2, 2, 2, 1, 1, 2, 1, 1, 3, 2, 2, 1, 1, 2, 1,
@@ -195,33 +196,49 @@ bool CPU::getCondition(const uint8_t encoded)
     }
 }
 
-uint16_t CPU::fetchWord()
+std::expected<uint16_t, std::string> CPU::fetchWord()
 {
-    const uint8_t low = fetch();
-    const uint8_t high = fetch();
+    auto result = fetch();
+    if (!result.has_value())
+        return std::unexpected(result.error());
+    const uint8_t low = result.value();
+
+    result = fetch();
+    if (!result.has_value())
+        return std::unexpected(result.error());
+    const uint8_t high = result.value();
 
     return (static_cast<uint16_t>(high) << 8) | low;
 }
 
-uint8_t CPU::fetch()
+std::expected<uint8_t, std::string> CPU::fetch()
 {
     cbFlag = false;
+    uint8_t fetchedByte = 0;
 
-    uint8_t fetcheduint8_t = memory.read(PC);
+    auto result = memory.read(PC);
+    if (!result.has_value())
+        return std::unexpected(result.error());
+
+    fetchedByte = result.value();
     PC++;
-    onFetch.notify(fetcheduint8_t, PC);
+    onFetch.notify(fetchedByte, PC);
 
-    if (state == States::FETCH && fetcheduint8_t == 0xCB)
+    if (state == States::FETCH && fetchedByte == 0xCB)
     {
         cbFlag = true;
-        fetcheduint8_t = memory.read(PC);
+        result = memory.read(PC);
+        if (!result.has_value())
+            return std::unexpected(result.error());
+
+        fetchedByte = result.value();
         PC++;
-        onFetch.notify(fetcheduint8_t, PC);
+        onFetch.notify(fetchedByte, PC);
     }
 
     state = States::EXECUTE;
 
-    return fetcheduint8_t;
+    return fetchedByte;
 }
 
 uint8_t CPU::execute(const uint8_t opcode)

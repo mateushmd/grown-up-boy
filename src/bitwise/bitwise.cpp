@@ -2,7 +2,7 @@
 #include <cstdint>
 #include <string>
 
-#include "../bitwise.hpp"
+#include "bitwise.hpp"
 
 namespace util::bitwise
 {
