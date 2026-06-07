@@ -177,4 +177,25 @@ namespace emulator {
 
         return std::unexpected(GameBoyError::invalid_register);
     }
+
+    std::expected<bool, GameBoyError> GameBoy::get_flag(uint8_t flag) {
+        if (flag < 4 || flag > 7) {
+            return std::unexpected(GameBoyError::invalid_flag);
+        }
+
+        return get_f() & (1 << (flag - 4));
+    }
+
+    std::expected<void, GameBoyError> GameBoy::set_flag(uint8_t flag, bool value) {
+        if (flag < 4 || flag > 7) {
+            return std::unexpected(GameBoyError::invalid_flag);
+        }
+
+        auto shift = flag - 4;
+        auto f_without_flag = get_f() & ~(1 << shift);
+
+        set_f((get_f() & ~(1 << shift)) | (value << shift));
+
+        return {};
+    }
 }

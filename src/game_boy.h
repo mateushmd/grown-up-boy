@@ -6,6 +6,7 @@
 
 namespace emulator {
     enum class GameBoyError {
+        invalid_flag,
         invalid_register,
         unimplemented
     };
@@ -48,6 +49,9 @@ namespace emulator {
             
             std::expected<uint16_t, GameBoyError> get_r16mem(uint8_t r16mem);
             std::expected<void, GameBoyError> set_r16mem(uint8_t r16mem, uint16_t value);
+
+            std::expected<bool, GameBoyError> get_flag(uint8_t flag);
+            std::expected<void, GameBoyError> set_flag(uint8_t flag, bool value);
             
             bool get_cond(uint8_t cond);
 
