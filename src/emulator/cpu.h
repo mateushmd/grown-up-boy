@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <expected>
 #include "defs.h"
-#include "mmu.h"
+#include "bus.h"
 #include "register.h"
 
 namespace emulator {
@@ -16,7 +16,7 @@ namespace emulator {
             uint16_t sp;
             uint16_t pc;
 
-            MMU mmu;
+            Bus bus;
 
             bool cb_flag;
 

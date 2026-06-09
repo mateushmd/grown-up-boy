@@ -6,7 +6,7 @@
 #include "defs.h"
 
 namespace emulator {
-    class MMU {
+    class Bus {
         private:
             std::array<uint8_t, 1024 * 16> mem; 
         public:

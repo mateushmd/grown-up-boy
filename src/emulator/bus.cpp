@@ -1,10 +1,10 @@
 #include <cstdint>
 #include <expected>
 #include "defs.h"
-#include "mmu.h"
+#include "bus.h"
 
 namespace emulator {
-    std::expected<uint8_t, GameBoyError> MMU::load_byte(uint16_t address) {
+    std::expected<uint8_t, GameBoyError> Bus::load_byte(uint16_t address) {
         if (address >= mem.size()) {
             return std::unexpected(GameBoyError::invalid_address);
         }
@@ -12,7 +12,7 @@ namespace emulator {
         return mem[address];
     } 
 
-    std::expected<void, GameBoyError> MMU::store_byte(
+    std::expected<void, GameBoyError> Bus::store_byte(
         uint16_t address, uint8_t value
     ) {
         if (address >= mem.size()) {
@@ -26,7 +26,7 @@ namespace emulator {
 
     // TODO: Check behavior on unaligned address
     // TODO: Check behavior on final address
-    std::expected<uint16_t, GameBoyError> MMU::load_word(uint16_t address) {
+    std::expected<uint16_t, GameBoyError> Bus::load_word(uint16_t address) {
         if (address >= mem.size()) {
             return std::unexpected(GameBoyError::invalid_address);
         }
@@ -35,7 +35,7 @@ namespace emulator {
     }
 
 
-    std::expected<void, GameBoyError> MMU::store_word(
+    std::expected<void, GameBoyError> Bus::store_word(
         uint16_t address, uint16_t value
     ) {
         if (address >= mem.size()) {
