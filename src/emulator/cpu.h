@@ -70,14 +70,10 @@ namespace emulator {
 
             std::expected<bool, GameBoyError> get_cond(uint8_t cond);
 
-            uint8_t get_byte(uint32_t addr);
-            uint8_t set_byte(uint32_t addr, uint8_t value);
-
-            uint16_t get_word(uint32_t addr);
-            uint16_t set_word(uint32_t addr, uint16_t value);
-
-            uint8_t fetch_byte(void);
-            uint16_t fetch_word(void);
+            std::expected<uint16_t, GameBoyError> load_word(uint16_t address);
+            std::expected<void, GameBoyError> store_word(
+                uint16_t address, uint16_t value
+            );
 
             std::expected<void, GameBoyError> ld_r16_imm16(uint8_t opcode);
             std::expected<void, GameBoyError> ld_r16mem_a(uint8_t opcode);
