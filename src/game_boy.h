@@ -18,6 +18,8 @@ namespace emulator {
 
             MMU mmu;
 
+            bool cb_flag;
+
             inline uint8_t get_a(void);
             inline uint8_t get_f(void);
             inline uint8_t get_b(void);
@@ -87,14 +89,14 @@ namespace emulator {
             std::expected<void, GameBoyError> inc_r8(uint8_t opcode);
             std::expected<void, GameBoyError> dec_r8(uint8_t opcode);
             std::expected<void, GameBoyError> ld_r8_imm8(uint8_t opcode);
-            void rlca(uint8_t opcode);
-            void rrca(uint8_t opcode);
-            void rla(uint8_t opcode);
-            void rra(uint8_t opcode);
-            void daa(uint8_t opcode);
-            void cpl(uint8_t opcode);
-            void scf(uint8_t opcode);
-            void ccf(uint8_t opcode);
+            std::expected<void, GameBoyError> rlca(uint8_t opcode);
+            std::expected<void, GameBoyError> rrca(uint8_t opcode);
+            std::expected<void, GameBoyError> rla(uint8_t opcode);
+            std::expected<void, GameBoyError> rra(uint8_t opcode);
+            std::expected<void, GameBoyError> daa(uint8_t opcode);
+            std::expected<void, GameBoyError> cpl(uint8_t opcode);
+            std::expected<void, GameBoyError> scf(uint8_t opcode);
+            std::expected<void, GameBoyError> ccf(uint8_t opcode);
             std::expected<void, GameBoyError> jr_imm8(uint8_t opcode);
             std::expected<void, GameBoyError> jr_cond_imm8(uint8_t opcode);
             std::expected<void, GameBoyError> stop(uint8_t opcode);
@@ -121,7 +123,7 @@ namespace emulator {
             std::expected<void, GameBoyError> reti(uint8_t opcode);
             std::expected<void, GameBoyError> jp_cond_imm16(uint8_t opcode);
             std::expected<void, GameBoyError> jp_imm16(uint8_t opcode);
-            void jp_hl(uint8_t opcode);
+            std::expected<void, GameBoyError> jp_hl(uint8_t opcode);
             std::expected<void, GameBoyError> call_cond_imm16(uint8_t opcode);
             std::expected<void, GameBoyError> call_imm16(uint8_t opcode);
             std::expected<void, GameBoyError> rst_tgt3(uint8_t opcode);
@@ -135,7 +137,7 @@ namespace emulator {
             std::expected<void, GameBoyError> ld_a_imm16(uint8_t opcode);
             std::expected<void, GameBoyError> add_sp_imm8(uint8_t opcode);
             std::expected<void, GameBoyError> ld_hl_sp_imm8(uint8_t opcode);
-            void ld_sp_hl(uint8_t opcode);
+            std::expected<void, GameBoyError> ld_sp_hl(uint8_t opcode);
             std::expected<void, GameBoyError> di(uint8_t opcode);
             std::expected<void, GameBoyError> ei(uint8_t opcode);
             std::expected<void, GameBoyError> rlc_r8(uint8_t opcode);
@@ -149,6 +151,13 @@ namespace emulator {
             std::expected<void, GameBoyError> bit_b3_r8(uint8_t opcode);
             std::expected<void, GameBoyError> res_b3_r8(uint8_t opcode);
             std::expected<void, GameBoyError> set_b3_r8(uint8_t opcode);
+
+            std::expected<void, GameBoyError> decode_execute(uint8_t opcode);
+            std::expected<void, GameBoyError> block0(uint8_t opcode);
+            std::expected<void, GameBoyError> block1(uint8_t opcode);
+            std::expected<void, GameBoyError> block2(uint8_t opcode);
+            std::expected<void, GameBoyError> block3(uint8_t opcode);
+            std::expected<void, GameBoyError> cb_prefix(uint8_t opcode);
 
         public:
     };

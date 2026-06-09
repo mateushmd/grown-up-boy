@@ -1,5 +1,6 @@
 #include <cstdint>
 #include <expected>
+#include <utility>
 #include "game_boy.h"
 #include "defs.h"
 
@@ -1067,5 +1068,168 @@ namespace emulator {
             .transform([this, operand, bit3](uint8_t r8) {
                 *set_r8(operand, r8 & (1 << bit3));
             });
+    }
+
+    std::expected<void, GameBoyError> GameBoy::decode_execute(uint8_t opcode)
+    {
+        auto block = opcode >> 6;
+
+        if (cb_flag) {
+            return cb_prefix(opcode);
+            cb_flag = false;
+        } else {
+            switch (block) {
+                case 0: return block0(opcode);
+                case 1: return block1(opcode);
+                case 2: return block2(opcode);
+                case 3: return block3(opcode);
+            }
+        }
+
+        std::unreachable();
+    }
+
+    std::expected<void, GameBoyError> GameBoy::block0(uint8_t opcode) {
+        auto x = opcode & 0b111;
+        bool y = (opcode >> 3) & 1;
+
+        switch (opcode) {
+            case 0x00: return {};
+            case 0x08: return ld_imm16_sp(opcode);
+            case 0x07: return rlca(opcode);
+            case 0x0f: return rrca(opcode);
+            case 0x17: return rla(opcode);
+            case 0x1f: return rra(opcode);
+            case 0x27: return daa(opcode);
+            case 0x2f: return cpl(opcode);
+            case 0x37: return scf(opcode);
+            case 0x3f: return ccf(opcode);
+            case 0x18: return jr_imm8(opcode);
+            case 0x10: return stop(opcode);
+        }
+
+        switch (x) {
+            case 0b000: return jr_cond_imm8(opcode);
+            case 0b001: 
+                if (!y) {
+                    return ld_r16_imm16(opcode);
+                } else {
+                    return add_hl_r16(opcode);
+                }
+            case 0b010:
+                if (!y) {
+                    return ld_r16mem_a(opcode);
+                } else {
+                    return ld_a_r16mem(opcode);
+                }
+            case 0b011:
+                if (!y) {
+                    return inc_r16(opcode);
+                } else {
+                    return dec_r16(opcode);
+                }
+            case 0b100: return inc_r8(opcode);
+            case 0b101: return dec_r8(opcode);
+            case 0b110: return ld_r8_imm8(opcode);
+        }
+
+        return std::unexpected(GameBoyError::invalid_instruction);
+    }
+
+    std::expected<void, GameBoyError> GameBoy::block1(uint8_t opcode) {
+        if (opcode == 0x76) {
+            return halt(opcode);
+        }
+
+        return ld_r8_r8(opcode);
+    }
+
+    std::expected<void, GameBoyError> GameBoy::block2(uint8_t opcode) {
+        auto x = (opcode >> 3) & 0b111;
+
+        switch (x) {
+            case 0b000: return add_a_r8(opcode);
+            case 0b001: return adc_a_r8(opcode);
+            case 0b010: return sub_a_r8(opcode);
+            case 0b011: return sbc_a_r8(opcode);
+            case 0b100: return and_a_r8(opcode);
+            case 0b101: return xor_a_r8(opcode);
+            case 0b110: return or_a_r8(opcode);
+            case 0b111: return cp_a_r8(opcode);
+        }
+
+        std::unreachable();
+    }
+    
+    std::expected<void, GameBoyError> GameBoy::block3(uint8_t opcode) {
+        auto x = opcode & 0b111;
+
+        switch (opcode) {
+            case 0xc6: return add_a_imm8(opcode);
+            case 0xce: return adc_a_imm8(opcode);
+            case 0xd6: return sub_a_imm8(opcode);
+            case 0xde: return sbc_a_imm8(opcode);
+            case 0xe6: return and_a_imm8(opcode);
+            case 0xee: return xor_a_imm8(opcode);
+            case 0xf6: return or_a_imm8(opcode);
+            case 0xfe: return cp_a_imm8(opcode);
+            case 0xc9: return ret(opcode);
+            case 0xd9: return reti(opcode);
+            case 0xc3: return jp_imm16(opcode);
+            case 0xe9: return jp_hl(opcode);
+            case 0xcd: return call_imm16(opcode);
+            case 0xe2: return ldh_c_a(opcode);
+            case 0xe0: return ldh_imm8_a(opcode);
+            case 0xea: return ld_imm16_a(opcode);
+            case 0xf2: return ldh_a_c(opcode);
+            case 0xf0: return ldh_a_imm8(opcode);
+            case 0xfa: return ld_a_imm16(opcode);
+            case 0xe8: return add_sp_imm8(opcode);
+            case 0xf8: return ld_hl_sp_imm8(opcode);
+            case 0xf9: return ld_sp_hl(opcode);
+            case 0xf3: return di(opcode);
+            case 0xfb: return ei(opcode);
+            case 0xd3: case 0xdb: case 0xdd: case 0xe3: case 0xe4: case 0xeb:
+            case 0xec: case 0xed: case 0xf4: case 0xfc: case 0xfd:
+                // TODO: implement CPU hard-lock
+                // TODO: verify if these checks are necessary
+                return std::unexpected(GameBoyError::unimplemented);
+        }
+        
+        switch (x) {
+            case 0b000: return ret_cond(opcode);
+            case 0b010: return jp_cond_imm16(opcode);
+            case 0b100: return call_cond_imm16(opcode);
+            case 0b111: return rst_tgt3(opcode);
+            case 0b001: return pop_r16stk(opcode);
+            case 0b101: return push_r16stk(opcode);
+        }
+
+        return std::unexpected(GameBoyError::invalid_instruction);
+    }
+
+    std::expected<void, GameBoyError> GameBoy::cb_prefix(uint8_t opcode) {
+        auto x = opcode >> 6;
+        auto y = (opcode >> 3) & 0b111;
+
+        switch (x) {
+            case 0b00:
+                switch (y) {
+                    case 0b000: return rlc_r8(opcode);
+                    case 0b001: return rrc_r8(opcode);
+                    case 0b010: return rl_r8(opcode);
+                    case 0b011: return rr_r8(opcode);
+                    case 0b100: return sla_r8(opcode);
+                    case 0b101: return sra_r8(opcode);
+                    case 0b110: return swap_r8(opcode);
+                    case 0b111: return srl_r8(opcode);
+                }
+                std::unreachable();
+            case 0b01: return bit_b3_r8(opcode);
+            case 0b10: return res_b3_r8(opcode);
+            case 0b11: return set_b3_r8(opcode);
+        }
+
+        std::unreachable();
     }
 }

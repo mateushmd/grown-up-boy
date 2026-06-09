@@ -7,6 +7,7 @@ namespace emulator {
         invalid_address,
         invalid_cond,
         invalid_flag,
+        invalid_instruction,
         invalid_register,
         unimplemented
     };
