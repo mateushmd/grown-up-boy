@@ -1,7 +1,7 @@
 #include <cstdint>
 #include <expected>
 #include <utility>
-#include "game_boy.h"
+#include "cpu.h"
 #include "defs.h"
 
 namespace emulator {
