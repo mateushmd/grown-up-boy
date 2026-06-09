@@ -344,25 +344,27 @@ namespace emulator {
             });
     }
 
-    void GameBoy::rlca(uint8_t opcode) { 
+    std::expected<void, GameBoyError> GameBoy::rlca(uint8_t opcode) { 
         auto a_value = get_a();
         set_a(a_value << 1);
         set_flag_c((a_value & 0x80) != 0);
         set_flag_z(false);
         set_flag_n(false);
         set_flag_h(false);
+        return {};
     }
 
-    void GameBoy::rrca(uint8_t opcode) {
+    std::expected<void, GameBoyError> GameBoy::rrca(uint8_t opcode) {
         auto a_value = get_a();
         set_a(a_value >> 1);
         set_flag_c((a_value & 1) != 0);
         set_flag_z(false);
         set_flag_n(false);
         set_flag_h(false);
+        return {};
     }
 
-    void GameBoy::rla(uint8_t opcode) { 
+    std::expected<void, GameBoyError> GameBoy::rla(uint8_t opcode) { 
         auto a_value = get_a();
         auto c_value = get_flag_c();
         set_a((a_value << 1) | c_value);
@@ -370,9 +372,10 @@ namespace emulator {
         set_flag_z(false);
         set_flag_n(false);
         set_flag_h(false);
+        return {};
     }
 
-    void GameBoy::rra(uint8_t opcode) { 
+    std::expected<void, GameBoyError> GameBoy::rra(uint8_t opcode) { 
         auto a_value = get_a();
         auto c_value = get_flag_c();
         set_a((a_value >> 1) | (static_cast<uint8_t>(c_value) << 7));
@@ -380,9 +383,10 @@ namespace emulator {
         set_flag_z(false);
         set_flag_n(false);
         set_flag_h(false);
+        return {};
     }
 
-    void GameBoy::daa(uint8_t opcode) { 
+    std::expected<void, GameBoyError> GameBoy::daa(uint8_t opcode) { 
         uint8_t adjustment = 0;
         auto a_value = get_a();
 
@@ -411,24 +415,32 @@ namespace emulator {
 
         set_flag_z(a_value == 0);
         set_flag_h(false);
+
+        return {};
     }
 
-    void GameBoy::cpl(uint8_t opcode) { 
+    std::expected<void, GameBoyError> GameBoy::cpl(uint8_t opcode) { 
         set_a(~get_a());
         set_flag_n(true);
         set_flag_h(true);
+
+        return {};
     }
 
-    void GameBoy::scf(uint8_t opcode) {
+    std::expected<void, GameBoyError> GameBoy::scf(uint8_t opcode) {
         set_flag_n(false);
         set_flag_h(false);
         set_flag_c(true);
+
+        return {};
     }
 
-    void GameBoy::ccf(uint8_t opcode) {
+    std::expected<void, GameBoyError> GameBoy::ccf(uint8_t opcode) {
         set_flag_n(false);
         set_flag_h(false);
         set_flag_c(!get_flag_c());
+        
+        return {};
     }
 
     std::expected<void, GameBoyError> GameBoy::jr_imm8(uint8_t opcode) { 
@@ -760,8 +772,10 @@ namespace emulator {
             });
     }
 
-    void GameBoy::jp_hl(uint8_t opcode) { 
+    std::expected<void, GameBoyError> GameBoy::jp_hl(uint8_t opcode) { 
         pc = hl.pair;
+
+        return {};
     }
 
     std::expected<void, GameBoyError> GameBoy::call_cond_imm16(
@@ -909,8 +923,10 @@ namespace emulator {
             });
     }
 
-    void GameBoy::ld_sp_hl(uint8_t opcode) { 
+    std::expected<void, GameBoyError> GameBoy::ld_sp_hl(uint8_t opcode) { 
         sp = hl.pair;
+
+        return {};
     }
 
     // TODO: implement di
