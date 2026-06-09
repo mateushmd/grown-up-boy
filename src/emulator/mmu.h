@@ -11,12 +11,12 @@ namespace emulator {
             std::array<uint8_t, 1024 * 16> mem; 
         public:
             std::expected<uint8_t, GameBoyError> load_byte(uint16_t address);
-            std::expected<void, GameBoyError> write_byte(
+            std::expected<void, GameBoyError> store_byte(
                 uint16_t address, uint8_t value
             );
 
             std::expected<uint16_t, GameBoyError> load_word(uint16_t address);
-            std::expected<void, GameBoyError> write_word(
+            std::expected<void, GameBoyError> store_word(
                 uint16_t address, uint16_t value
             );
     };

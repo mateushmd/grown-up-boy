@@ -103,7 +103,7 @@ namespace emulator {
                 set_l(value);
                 return {};
             case 6:
-                return mmu.write_byte(hl.pair, value);
+                return mmu.store_byte(hl.pair, value);
             case 7:
                 set_a(value);
                 return {};
@@ -252,7 +252,7 @@ namespace emulator {
 
         return get_r16mem(dest)
             .and_then([this](uint16_t r16mem) {
-                return mmu.write_byte(
+                return mmu.store_byte(
                     r16mem, 
                     get_a()
                 );
@@ -274,7 +274,7 @@ namespace emulator {
     std::expected<void, GameBoyError> GameBoy::ld_imm16_sp(uint8_t opcode) { 
         return mmu.load_word(pc)
             .and_then([this](uint16_t imm16) {
-                return mmu.write_word(imm16, sp);
+                return mmu.store_word(imm16, sp);
             });
     }
 
@@ -778,7 +778,7 @@ namespace emulator {
         if (*cond) {
             return mmu.load_word(pc)
                 .and_then([this](uint16_t imm16) {
-                    return mmu.write_word(sp - 2, pc + 2)
+                    return mmu.store_word(sp - 2, pc + 2)
                         .transform([this, imm16]() {
                             sp -= 2;
                             pc = imm16;
@@ -792,7 +792,7 @@ namespace emulator {
     std::expected<void, GameBoyError> GameBoy::call_imm16(uint8_t opcode) { 
         return mmu.load_word(pc)
             .and_then([this](uint16_t imm16) {
-                return mmu.write_word(sp - 2, pc + 2)
+                return mmu.store_word(sp - 2, pc + 2)
                     .transform([this, imm16]() {
                         sp -= 2;
                         pc = imm16;
@@ -822,7 +822,7 @@ namespace emulator {
 
         return get_r16stk(reg)
             .and_then([this](uint16_t r16stk) {
-                return mmu.write_word(sp - 2, r16stk);
+                return mmu.store_word(sp - 2, r16stk);
             })
             .transform([this]() {
                 sp -= 2;
@@ -830,13 +830,13 @@ namespace emulator {
     }
 
     std::expected<void, GameBoyError> GameBoy::ldh_c_a(uint8_t opcode) { 
-        return mmu.write_byte(0xff00 + get_c(), get_a());
+        return mmu.store_byte(0xff00 + get_c(), get_a());
     }
 
     std::expected<void, GameBoyError> GameBoy::ldh_imm8_a(uint8_t opcode) { 
         return mmu.load_byte(pc)
             .and_then([this](uint8_t imm8) {
-                return mmu.write_byte(0xff00 | imm8, get_a());
+                return mmu.store_byte(0xff00 | imm8, get_a());
             })
             .transform([this]() {
                 ++pc;
@@ -846,7 +846,7 @@ namespace emulator {
     std::expected<void, GameBoyError> GameBoy::ld_imm16_a(uint8_t opcode) { 
         return mmu.load_word(pc)
             .and_then([this](uint16_t imm16) {
-                return mmu.write_byte(imm16, get_a());
+                return mmu.store_byte(imm16, get_a());
             })
             .transform([this]() {
                 pc += 2;

@@ -12,7 +12,7 @@ namespace emulator {
         return mem[address];
     } 
 
-    std::expected<void, GameBoyError> MMU::write_byte(
+    std::expected<void, GameBoyError> MMU::store_byte(
         uint16_t address, uint8_t value
     ) {
         if (address >= mem.size()) {
@@ -35,7 +35,7 @@ namespace emulator {
     }
 
 
-    std::expected<void, GameBoyError> MMU::write_word(
+    std::expected<void, GameBoyError> MMU::store_word(
         uint16_t address, uint16_t value
     ) {
         if (address >= mem.size()) {
