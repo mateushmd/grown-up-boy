@@ -7,7 +7,7 @@
 #include "register.h"
 
 namespace emulator {
-    class GameBoy {
+    class CPU {
         private:
             union RegisterPair af;
             union RegisterPair bc;
