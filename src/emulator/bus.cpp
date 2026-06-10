@@ -1,7 +1,5 @@
 #include <cstdint>
 #include <expected>
-#include <span>
-#include <tuple>
 #include "defs.h"
 #include "bus.h"
 
