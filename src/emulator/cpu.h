@@ -16,6 +16,8 @@ namespace emulator {
             uint16_t sp;
             uint16_t pc;
 
+            bool ime;
+
             Bus bus;
 
             bool cb_flag;

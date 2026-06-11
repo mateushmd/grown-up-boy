@@ -761,9 +761,13 @@ namespace emulator {
             });
     }
     
-    // TODO: implement interrupts
     std::expected<void, GameBoyError> CPU::reti(uint8_t opcode) { 
-        return std::unexpected(GameBoyError::unimplemented);
+        ime = 1;
+        return load_word(sp)
+            .transform([this](uint8_t stk) {
+                pc = stk;
+                sp += 2;
+            });
     }
 
     std::expected<void, GameBoyError> CPU::jp_cond_imm16(uint8_t opcode) { 
@@ -949,14 +953,14 @@ namespace emulator {
         return {};
     }
 
-    // TODO: implement di
     std::expected<void, GameBoyError> CPU::di(uint8_t opcode) { 
-        return std::unexpected(GameBoyError::unimplemented); 
+        ime = 0;
+        return {};
     }
 
-    // TODO: implement ei
     std::expected<void, GameBoyError> CPU::ei(uint8_t opcode) { 
-        return std::unexpected(GameBoyError::unimplemented);
+        ime = 1;
+        return {};
     }
 
     std::expected<void, GameBoyError> CPU::rlc_r8(uint8_t opcode) { 
