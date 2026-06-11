@@ -14,7 +14,7 @@ namespace emulator::io {
             void start_div();
             void stop_div();
             
-            const uint8_t read(uint8_t address) const;
+            uint8_t read(uint8_t address) const;
             void write(const uint8_t address, const uint8_t value);
     };
 }
