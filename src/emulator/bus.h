@@ -2,9 +2,8 @@
 
 #include <array>
 #include <cstdint>
-#include <expected>
 #include "cartridge.hpp"
-#include "defs.h"
+#include "cartridge.hpp"
 
 namespace emulator {
     class Bus {
@@ -17,13 +16,8 @@ namespace emulator {
 
             Cartridge &cartridge;
 
-            uint8_t read_io(uint16_t address);
-            void write_io(uint16_t address, uint8_t value);
-
         public:
-            std::expected<uint8_t, GameBoyError> read(uint16_t address);
-            std::expected<void, GameBoyError> write(
-                uint16_t address, uint8_t value
-            );
+            uint8_t read(uint16_t address);
+            void write(uint16_t address, uint8_t value);
     };
 }

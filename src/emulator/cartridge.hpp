@@ -1,9 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <expected>
 #include <vector>
-#include "defs.h"
 
 namespace emulator {
     class Cartridge {
@@ -12,11 +10,9 @@ namespace emulator {
             std::vector<uint8_t> ram;
 
         public:
-            std::expected<uint8_t, GameBoyError> read_rom(uint16_t address); 
+            uint8_t read_rom(uint16_t address) const; 
 
-            std::expected<uint8_t, GameBoyError> read_ram(uint16_t address);
-            std::expected<void, GameBoyError> write_ram(
-                uint16_t address, uint8_t value
-            );
+            uint8_t read_ram(uint16_t address) const;
+            void write_ram(uint16_t address, uint8_t value);
     };
 }

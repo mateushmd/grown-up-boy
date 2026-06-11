@@ -31,28 +31,24 @@ namespace emulator {
 
     void CPU::set_flag_z(bool value) {
         uint8_t mask = 8;
-        auto f_without_flag = get_f() & ~mask;
 
         set_f((get_f() & ~mask) | (value << 3));
     }
 
     void CPU::set_flag_n(bool value) {
         uint8_t mask = 4;
-        auto f_without_flag = get_f() & ~mask;
 
         set_f((get_f() & ~mask) | (value << 2));
     }
 
     void CPU::set_flag_h(bool value) {
         uint8_t mask = 2;
-        auto f_without_flag = get_f() & ~mask;
 
         set_f((get_f() & ~mask) | (value << 1));
     }
 
     void CPU::set_flag_c(bool value) {
         uint8_t mask = 1;
-        auto f_without_flag = get_f() & ~mask;
 
         set_f((get_f() & ~mask) | value);
     }
@@ -104,7 +100,8 @@ namespace emulator {
                 set_l(value);
                 return {};
             case 6:
-                return bus.write(hl.pair, value);
+                bus.write(hl.pair, value);
+                return {};
             case 7:
                 set_a(value);
                 return {};
@@ -237,22 +234,17 @@ namespace emulator {
     }
 
     std::expected<uint16_t, GameBoyError> CPU::load_word(uint16_t address) {
-        return bus.read(address)
-            .and_then([this, address](uint8_t l) { 
-                return bus.read(address + 1)
-                    .transform([l](uint8_t h) {
-                        return (static_cast<uint16_t>(h) << 8) | l;
-                    });
-            });
+        auto l = bus.read(address);
+        auto h = bus.read(address + 1);
+        return (static_cast<uint16_t>(h) << 8) | l;
     }
 
     std::expected<void, GameBoyError> CPU::store_word(
         uint16_t address, uint16_t value
     ) {
-        return bus.write(address, value & 0xff)
-            .and_then([this, address, value]() {
-                return bus.write(address + 1, value >> 8);
-            });
+        bus.write(address, value & 0xff);
+        bus.write(address + 1, value >> 8);
+        return {};
     }
 
     std::expected<void, GameBoyError> CPU::ld_r16_imm16(uint8_t opcode) { 
@@ -271,7 +263,7 @@ namespace emulator {
         uint8_t dest = (opcode >> 4) & 0b11;
 
         return get_r16mem(dest)
-            .and_then([this](uint16_t r16mem) {
+            .transform([this](uint16_t r16mem) {
                 return bus.write(
                     r16mem, 
                     get_a()
@@ -283,10 +275,8 @@ namespace emulator {
         uint8_t source = (opcode >> 4) & 0b11;
 
         return get_r16mem(source)
-            .and_then([this](uint16_t r16mem) {
-                return bus.read(r16mem);
-            })
-            .transform([this](uint8_t value) {
+            .transform([this](uint16_t r16mem) {
+                auto value = bus.read(r16mem);
                 set_a(value);
             });
     }
@@ -358,10 +348,9 @@ namespace emulator {
     std::expected<void, GameBoyError> CPU::ld_r8_imm8(uint8_t opcode) { 
         uint8_t dest = (opcode >> 4) & 0b11;
         
-        return bus.read(pc)
-            .and_then([this, dest](uint8_t imm8) {
-                return set_r8(dest, imm8);
-            });
+        auto imm8 = bus.read(pc);
+        set_r8(dest, imm8);
+        return {};
     }
 
     std::expected<void, GameBoyError> CPU::rlca(uint8_t opcode) { 
@@ -464,10 +453,9 @@ namespace emulator {
     }
 
     std::expected<void, GameBoyError> CPU::jr_imm8(uint8_t opcode) { 
-        return bus.read(pc)
-            .transform([this](uint8_t imm8) {
-                pc += 1 + static_cast<int8_t>(imm8);
-            });
+        auto imm8 = bus.read(pc);
+        pc += 1 + static_cast<int8_t>(imm8);
+        return {};
     }
 
     std::expected<void, GameBoyError> CPU::jr_cond_imm8(uint8_t opcode) { 
@@ -480,10 +468,8 @@ namespace emulator {
         }
 
         if (*cond) {
-            return bus.read(pc)
-                .transform([this](uint8_t imm8) {
-                    pc += 1 + static_cast<int8_t>(imm8);
-                });
+            auto imm8 = bus.read(pc);
+            pc += 1 + static_cast<int8_t>(imm8);
         }
 
         return {};
@@ -626,111 +612,103 @@ namespace emulator {
     }
 
     std::expected<void, GameBoyError> CPU::add_a_imm8(uint8_t opcode) { 
-        return bus.read(pc)
-            .transform([this](uint8_t imm8) {
-                auto a_value = get_a();
-                auto sum = a_value + imm8;
-                set_a(sum);
-                set_flag_z(sum == 0);
-                set_flag_n(false);
-                set_flag_h((a_value & 0xf) > (sum & 0xf));
-                set_flag_c(a_value > sum);
-                pc++;
-            });
+        auto imm8 = bus.read(pc);
+        auto a_value = get_a();
+        auto sum = a_value + imm8;
+        set_a(sum);
+        set_flag_z(sum == 0);
+        set_flag_n(false);
+        set_flag_h((a_value & 0xf) > (sum & 0xf));
+        set_flag_c(a_value > sum);
+        pc++;
+        return {};
     }
 
     std::expected<void, GameBoyError> CPU::adc_a_imm8(uint8_t opcode) { 
-        return bus.read(pc)
-            .transform([this](uint8_t imm8) {
-                auto a_value = get_a();
-                auto sum = a_value + imm8 + get_flag_c();
-                set_a(sum);
-                set_flag_z(sum == 0);
-                set_flag_n(false);
-                set_flag_h((a_value & 0xf) > (sum & 0xf));
-                set_flag_c(a_value > sum);
-                pc++;
-            });
+        auto imm8 = bus.read(pc);
+        auto a_value = get_a();
+        auto sum = a_value + imm8 + get_flag_c();
+        set_a(sum);
+        set_flag_z(sum == 0);
+        set_flag_n(false);
+        set_flag_h((a_value & 0xf) > (sum & 0xf));
+        set_flag_c(a_value > sum);
+        pc++;
+        return {};
     }
 
     std::expected<void, GameBoyError> CPU::sub_a_imm8(uint8_t opcode) { 
-        return bus.read(pc)
-            .transform([this](uint8_t imm8) {
-                auto a_value = get_a();
-                auto sum = a_value - imm8;
-                set_a(sum);
-                set_flag_z(sum == 0);
-                set_flag_n(true);
-                set_flag_h((imm8 & 0xf) > (a_value & 0xf));
-                set_flag_c(imm8 > a_value);
-                pc++;
-            });
+        auto imm8 = bus.read(pc);
+        auto a_value = get_a();
+        auto sum = a_value - imm8;
+        set_a(sum);
+        set_flag_z(sum == 0);
+        set_flag_n(true);
+        set_flag_h((imm8 & 0xf) > (a_value & 0xf));
+        set_flag_c(imm8 > a_value);
+        pc++;
+        return {};
     }
 
     std::expected<void, GameBoyError> CPU::sbc_a_imm8(uint8_t opcode) { 
-        return bus.read(pc)
-            .transform([this](uint8_t imm8) {
-                auto a_value = get_a();
-                auto sum = a_value - (imm8 + 1);
-                set_a(sum);
-                set_flag_z(sum == 0);
-                set_flag_n(false);
-                set_flag_h(((imm8 + 1) & 0xf) > (a_value & 0xf));
-                set_flag_c((imm8 + 1) > a_value);
-                pc++;
-            });
+        auto imm8 = bus.read(pc);
+        auto a_value = get_a();
+        auto sum = a_value - (imm8 + 1);
+        set_a(sum);
+        set_flag_z(sum == 0);
+        set_flag_n(false);
+        set_flag_h(((imm8 + 1) & 0xf) > (a_value & 0xf));
+        set_flag_c((imm8 + 1) > a_value);
+        pc++;
+        return {};
     }
 
     std::expected<void, GameBoyError> CPU::and_a_imm8(uint8_t opcode) { 
-        return bus.read(pc)
-            .transform([this](uint8_t imm8) {
-                auto result = get_a() & imm8;
-                set_a(result);
-                set_flag_z(result == 0);
-                set_flag_n(false);
-                set_flag_h(true);
-                set_flag_c(false);
-                pc++;
-            });
+        auto imm8 = bus.read(pc);
+        auto result = get_a() & imm8;
+        set_a(result);
+        set_flag_z(result == 0);
+        set_flag_n(false);
+        set_flag_h(true);
+        set_flag_c(false);
+        pc++;
+        return {};
     }
 
     std::expected<void, GameBoyError> CPU::xor_a_imm8(uint8_t opcode) { 
-        return bus.read(pc)
-            .transform([this](uint8_t imm8) {
-                auto result = get_a() ^ imm8;
-                set_a(result);
-                set_flag_z(result == 0);
-                set_flag_n(false);
-                set_flag_h(false);
-                set_flag_c(false);
-                pc++;
-            });
+        auto imm8 = bus.read(pc);
+        auto result = get_a() ^ imm8;
+        set_a(result);
+        set_flag_z(result == 0);
+        set_flag_n(false);
+        set_flag_h(false);
+        set_flag_c(false);
+        pc++;
+        return {};
     }
 
     std::expected<void, GameBoyError> CPU::or_a_imm8(uint8_t opcode) { 
-        return bus.read(pc)
-            .transform([this](uint8_t imm8) {
-                auto result = get_a() | imm8;
-                set_a(result);
-                set_flag_z(result == 0);
-                set_flag_n(false);
-                set_flag_h(false);
-                set_flag_c(false);
-                pc++;
-            });
+        auto imm8 = bus.read(pc);
+        auto result = get_a() | imm8;
+        set_a(result);
+        set_flag_z(result == 0);
+        set_flag_n(false);
+        set_flag_h(false);
+        set_flag_c(false);
+        pc++;
+        return {};
     }
 
     std::expected<void, GameBoyError> CPU::cp_a_imm8(uint8_t opcode) { 
-        return bus.read(pc)
-            .transform([this](uint8_t imm8) {
-                auto a_value = get_a();
-                auto sum = a_value - imm8;
-                set_flag_z(sum == 0);
-                set_flag_n(true);
-                set_flag_h((imm8 & 0xf) > (a_value & 0xf));
-                set_flag_c(imm8 > a_value);
-                pc++;
-            });
+        auto imm8 = bus.read(pc);
+        auto a_value = get_a();
+        auto sum = a_value - imm8;
+        set_flag_z(sum == 0);
+        set_flag_n(true);
+        set_flag_h((imm8 & 0xf) > (a_value & 0xf));
+        set_flag_c(imm8 > a_value);
+        pc++;
+        return {};
     }
 
     std::expected<void, GameBoyError> CPU::ret_cond(uint8_t opcode) { 
@@ -868,83 +846,71 @@ namespace emulator {
     }
 
     std::expected<void, GameBoyError> CPU::ldh_c_a(uint8_t opcode) { 
-        return bus.write(0xff00 + get_c(), get_a());
+        bus.write(0xff00 + get_c(), get_a());
+        return {};
     }
 
     std::expected<void, GameBoyError> CPU::ldh_imm8_a(uint8_t opcode) { 
-        return bus.read(pc)
-            .and_then([this](uint8_t imm8) {
-                return bus.write(0xff00 | imm8, get_a());
-            })
-            .transform([this]() {
-                ++pc;
-            });
+        auto imm8 = bus.read(pc);
+        bus.write(0xff00 | imm8, get_a());
+        ++pc;
+        return {};
     }
 
     std::expected<void, GameBoyError> CPU::ld_imm16_a(uint8_t opcode) { 
         return load_word(pc)
-            .and_then([this](uint16_t imm16) {
+            .transform([this](uint16_t imm16) {
                 return bus.write(imm16, get_a());
-            })
-            .transform([this]() {
                 pc += 2;
             });
     }
 
     std::expected<void, GameBoyError> CPU::ldh_a_c(uint8_t opcode) { 
-        return bus.read(0xff00 + get_c())
-            .transform([this](uint8_t value) {
-                set_a(value);
-            });
+        auto value = bus.read(0xff00 + get_c());
+        set_a(value);
+        return {};
     }
 
     std::expected<void, GameBoyError> CPU::ldh_a_imm8(uint8_t opcode) { 
-        return bus.read(pc)
-            .and_then([this](uint8_t imm8) {
-                return bus.read(0xff00 + imm8);
-            })
-            .transform([this](uint8_t value) {
-                set_a(value);
-                pc++;
-            });
+        auto imm8 = bus.read(pc);
+        auto value = bus.read(0xff00 + imm8);
+        set_a(value);
+        pc++;
+        return {};
     }
 
     std::expected<void, GameBoyError> CPU::ld_a_imm16(uint8_t opcode) { 
         return load_word(pc)
-            .and_then([this](uint8_t imm16) {
-                return bus.read(imm16);
-            })
-            .transform([this](uint8_t value) {
+            .transform([this](uint16_t imm16) {
+                auto value = bus.read(imm16);
                 set_a(value);
                 pc += 2;
             });
     }
 
     std::expected<void, GameBoyError> CPU::add_sp_imm8(uint8_t opcode) { 
-        return bus.read(pc)
-            .transform([this](uint8_t imm8) {
-                auto sp_value = sp;
-                sp += static_cast<int8_t>(imm8);
-                set_flag_z(false);
-                set_flag_n(false);
-                set_flag_h((sp_value & 0xf) > (sp & 0xf));
-                set_flag_c(sp_value > sp);
-                ++pc;
-            });
+        auto imm8 = bus.read(pc);
+        auto sp_value = sp;
+        sp += static_cast<int8_t>(imm8);
+        set_flag_z(false);
+        set_flag_n(false);
+        set_flag_h((sp_value & 0xf) > (sp & 0xf));
+        set_flag_c(sp_value > sp);
+        ++pc;
+        return {};
     }
 
     std::expected<void, GameBoyError> CPU::ld_hl_sp_imm8(uint8_t opcode) { 
-        return bus.read(pc)
-            .transform([this](uint8_t imm8) {
-                auto sp_value = sp;
-                auto sum = sp + static_cast<int8_t>(imm8);
-                hl.pair = sum;
-                set_flag_z(false);
-                set_flag_n(false);
-                set_flag_h((sp_value & 0xf) > (sum & 0xf));
-                set_flag_c(sp_value > sum);
-                ++pc;
-            });
+        auto imm8 = bus.read(pc);
+        auto sp_value = sp;
+        auto sum = sp + static_cast<int8_t>(imm8);
+        hl.pair = sum;
+        set_flag_z(false);
+        set_flag_n(false);
+        set_flag_h((sp_value & 0xf) > (sum & 0xf));
+        set_flag_c(sp_value > sum);
+        ++pc;
+        return {};
     }
 
     std::expected<void, GameBoyError> CPU::ld_sp_hl(uint8_t opcode) { 
@@ -1041,7 +1007,7 @@ namespace emulator {
 
         return get_r8(operand)
             .transform([this, operand](uint8_t r8) {
-                auto shift = (r8 >> 1) | r8 & 0x80;
+                auto shift = (r8 >> 1) | (r8 & 0x80);
                 *set_r8(operand, shift);
                 set_flag_z(shift == 0);
                 set_flag_n(false);

@@ -4,7 +4,6 @@
 #include <expected>
 #include "defs.h"
 #include "bus.h"
-#include "register.h"
 
 namespace emulator {
     class CPU {
