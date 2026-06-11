@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace emulator::devices {
+namespace emulator::io {
     class Timer {
         private:
             uint8_t div;

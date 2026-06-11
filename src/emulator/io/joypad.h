@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace emulator::devices {
+namespace emulator::io {
     class Joypad {
         private:
             uint8_t controls;
