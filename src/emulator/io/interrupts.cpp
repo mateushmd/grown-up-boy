@@ -3,13 +3,13 @@
 #include "interrupts.h"
 
 namespace emulator::io {
-    Interrupts::Interrupts() : ie(0xe0) { }
+    Interrupts::Interrupts() : if_(0xe0) { }
 
-    const uint8_t Interrupts::read() const {
-        return ie;
+    uint8_t Interrupts::read() const {
+        return if_;
     }
 
     void Interrupts::write(const uint8_t value) {
-        ie |= value & 0x1f;
+        if_ |= value & 0x1f;
     }
 }
