@@ -1,6 +1,11 @@
 #include "bus.h"
+#include "cartridge.hpp"
+#include "io/io_dispatcher.h"
 
 namespace emulator {
+    Bus::Bus(Cartridge &cartridge, io::IoDispatcher &io_dispatcher): 
+        cartridge(cartridge), io_dispatcher(io_dispatcher) { }
+
     uint8_t Bus::read(uint16_t address) {
         if (address < 0x4000) { // ROM bank 0
             return cartridge.read_rom(address);

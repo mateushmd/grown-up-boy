@@ -1,6 +1,15 @@
+#include "audio.h"
 #include "io_dispatcher.h"
+#include "interrupts.h"
+#include "joypad.h"
 
-namespace emulator {
+namespace emulator::io {
+    IoDispatcher::IoDispatcher(
+        Audio &audio, Interrupts &interrupts, Joypad &joypad, LCD &lcd,
+        Timer &timer
+    ): audio(audio), interrupts(interrupts), joypad(joypad), lcd(lcd),
+        timer(timer) { }
+
     uint8_t IoDispatcher::read(const uint16_t address) {
         if (address == 0) {
             return joypad.read();

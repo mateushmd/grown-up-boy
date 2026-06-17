@@ -17,9 +17,9 @@ namespace emulator {
 
             bool ime;
 
-            Bus bus;
-
             bool cb_flag;
+
+            Bus &bus;
 
             inline uint8_t get_a(void);
             inline uint8_t get_f(void);
@@ -157,5 +157,6 @@ namespace emulator {
             std::expected<void, GameBoyError> cb_prefix(uint8_t opcode);
 
         public:
+            CPU(Bus &bus);
     };
 }

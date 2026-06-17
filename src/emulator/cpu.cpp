@@ -6,6 +6,8 @@
 #include "defs.h"
 
 namespace emulator {
+    CPU::CPU(Bus &bus): bus(bus) { }
+
     inline uint8_t CPU::get_a() { return af.regs.high; }
     inline uint8_t CPU::get_f() { return af.regs.low; }
     inline uint8_t CPU::get_b() { return bc.regs.high; }

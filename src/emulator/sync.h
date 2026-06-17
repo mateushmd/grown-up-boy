@@ -1,8 +1,7 @@
 #pragma once
 
-#include <array>
-#include <cstdint>
 #include <cstdlib>
+#include <cstdint>
 #include <utility>
 
 namespace emulator {
@@ -14,14 +13,28 @@ namespace emulator {
             };
 
         private:
-
             static constexpr size_t num_modules = 
                 std::to_underlying(Module::num_modules);
 
-            std::array<uint32_t, num_modules> last_sync; 
-            std::array<uint32_t, num_modules> next_event; 
+            int32_t last_sync[num_modules]; 
+            int32_t next_event[num_modules]; 
+
+            int32_t earliest_event;
 
         public:
-            void set_next_event(Module module, uint32_t time);
+            Synchronizer();
+
+            void set_next_event(Module module, int32_t time);
+
+            void synchronize();
+
+            /**
+             *
+             * Transforms the earliest incoming event time to become the base 
+             * time (0) and readjusts the subsequent events accordingly to 
+             * prevent overflows while preserving the timeline.
+             *
+             */
+            void rebase();
     };
 }
