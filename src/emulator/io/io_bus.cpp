@@ -1,16 +1,13 @@
 #include "audio.h"
-#include "io_dispatcher.h"
+#include "io_bus.h"
 #include "interrupts.h"
 #include "joypad.h"
 
 namespace emulator::io {
-    IoDispatcher::IoDispatcher(
-        Audio &audio, Interrupts &interrupts, Joypad &joypad, LCD &lcd,
-        Timer &timer
-    ): audio(audio), interrupts(interrupts), joypad(joypad), lcd(lcd),
-        timer(timer) { }
+    IOBus::IOBus(): audio(Audio()), interrupts(Interrupts()), joypad(Joypad()), lcd(LCD()),
+        timer(Timer()) { }
 
-    uint8_t IoDispatcher::read(const uint16_t address) {
+    uint8_t IOBus::read(const uint16_t address) {
         if (address == 0) {
             return joypad.read();
         } else if (address >= 0x04 && address <= 0x07) {
@@ -32,7 +29,7 @@ namespace emulator::io {
         TODO("empty region");
     }
 
-    void IoDispatcher::write(const uint16_t address, const uint8_t value) {
+    void IOBus::write(const uint16_t address, const uint8_t value) {
         if (address == 0) {
             joypad.write(value);
         } else if (address >= 0x04 && address <= 0x07) {
@@ -52,5 +49,9 @@ namespace emulator::io {
         }
         
         TODO("empty region");
+    }
+
+    void IOBus::update() {
+        timer.update();
     }
 }
