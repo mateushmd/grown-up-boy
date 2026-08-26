@@ -2,10 +2,11 @@
 
 #include <cstdint>
 
-namespace emulator::io {
+namespace emulator {
     class Interrupts {
         private:
-            uint8_t if_;
+            uint8_t ie;
+            uint8_t iflag;
 
         public:
             Interrupts();

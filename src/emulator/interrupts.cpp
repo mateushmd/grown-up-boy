@@ -2,14 +2,14 @@
 
 #include "interrupts.h"
 
-namespace emulator::io {
-    Interrupts::Interrupts() : if_(0xe0) { }
+namespace emulator {
+    Interrupts::Interrupts() : iflag(0xe0) { }
 
     uint8_t Interrupts::read() const {
-        return if_;
+        return iflag;
     }
 
     void Interrupts::write(const uint8_t value) {
-        if_ |= value & 0x1f;
+        iflag |= value & 0x1f;
     }
 }
