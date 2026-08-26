@@ -19,6 +19,8 @@ namespace emulator {
 
             bool cb_flag;
 
+            bool took_branch;
+
             Bus &bus;
 
             inline uint8_t get_a(void);
@@ -149,11 +151,14 @@ namespace emulator {
             std::expected<void, GameBoyError> res_b3_r8(uint8_t opcode);
             std::expected<void, GameBoyError> set_b3_r8(uint8_t opcode);
 
-            std::expected<void, GameBoyError> decode_execute(uint8_t opcode);
+            std::expected<uint8_t, GameBoyError> decode_execute(
+                uint8_t opcode
+            );
             std::expected<void, GameBoyError> block0(uint8_t opcode);
             std::expected<void, GameBoyError> block1(uint8_t opcode);
             std::expected<void, GameBoyError> block2(uint8_t opcode);
             std::expected<void, GameBoyError> block3(uint8_t opcode);
+            std::expected<void, GameBoyError> no_prefix(uint8_t opcode);
             std::expected<void, GameBoyError> cb_prefix(uint8_t opcode);
 
         public:

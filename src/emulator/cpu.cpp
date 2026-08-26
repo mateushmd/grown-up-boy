@@ -6,6 +6,64 @@
 #include "defs.h"
 
 namespace emulator {
+    const uint8_t unprefixed_cycles[] = {
+        4, 12, 8, 8, 4, 4, 8, 4, 20, 8, 8, 8, 4, 4, 8, 4,
+        4, 12, 8, 8, 4, 4, 8, 4, 12, 8, 8, 8, 4, 4, 8, 4,
+        8, 12, 8, 8, 4, 4, 8, 4, 8, 8, 8, 8, 4, 4, 8, 4,
+        8, 12, 8, 8, 12, 12, 12, 4, 8, 8, 8, 8, 4, 4, 8, 4,
+        4, 4, 4, 4, 4, 4, 8, 4, 4, 4, 4, 4, 4, 4, 8, 4,
+        4, 4, 4, 4, 4, 4, 8, 4, 4, 4, 4, 4, 4, 4, 8, 4,
+        4, 4, 4, 4, 4, 4, 8, 4, 4, 4, 4, 4, 4, 4, 8, 4,
+        8, 8, 8, 8, 8, 8, 4, 8, 4, 4, 4, 4, 4, 4, 8, 4,
+        4, 4, 4, 4, 4, 4, 8, 4, 4, 4, 4, 4, 4, 4, 8, 4,
+        4, 4, 4, 4, 4, 4, 8, 4, 4, 4, 4, 4, 4, 4, 8, 4,
+        4, 4, 4, 4, 4, 4, 8, 4, 4, 4, 4, 4, 4, 4, 8, 4,
+        4, 4, 4, 4, 4, 4, 8, 4, 4, 4, 4, 4, 4, 4, 8, 4,
+        8, 12, 12, 16, 12, 16, 8, 16, 8, 16, 12, 4, 12, 24, 8, 16,
+        8, 12, 12, 0, 12, 16, 8, 16, 8, 16, 12, 0, 12, 0, 8, 16,
+        12, 12, 8, 0, 0, 16, 8, 16, 16, 4, 16, 0, 0, 0, 8, 16,
+        12, 12, 8, 4, 0, 16, 8, 16, 12, 8, 16, 4, 0, 0, 8, 16
+    };
+
+    const uint8_t branch_cycles[] = {
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        12, 0, 0, 0, 0, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0,
+        12, 0, 0, 0, 0, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        20, 0, 16, 0, 24, 0, 0, 0, 20, 0, 16, 0, 24, 0, 0, 0,
+        20, 0, 16, 0, 24, 0, 0, 0, 20, 0, 16, 0, 24, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    };
+
+    const uint8_t prefixed_cycles[] = {
+        8, 8, 8, 8, 8, 8, 16, 8, 8, 8, 8, 8, 8, 8, 16, 8,
+        8, 8, 8, 8, 8, 8, 16, 8, 8, 8, 8, 8, 8, 8, 16, 8,
+        8, 8, 8, 8, 8, 8, 16, 8, 8, 8, 8, 8, 8, 8, 16, 8,
+        8, 8, 8, 8, 8, 8, 16, 8, 8, 8, 8, 8, 8, 8, 16, 8,
+        8, 8, 8, 8, 8, 8, 12, 8, 8, 8, 8, 8, 8, 8, 12, 8,
+        8, 8, 8, 8, 8, 8, 12, 8, 8, 8, 8, 8, 8, 8, 12, 8,
+        8, 8, 8, 8, 8, 8, 12, 8, 8, 8, 8, 8, 8, 8, 12, 8,
+        8, 8, 8, 8, 8, 8, 12, 8, 8, 8, 8, 8, 8, 8, 12, 8,
+        8, 8, 8, 8, 8, 8, 16, 8, 8, 8, 8, 8, 8, 8, 16, 8,
+        8, 8, 8, 8, 8, 8, 16, 8, 8, 8, 8, 8, 8, 8, 16, 8,
+        8, 8, 8, 8, 8, 8, 16, 8, 8, 8, 8, 8, 8, 8, 16, 8,
+        8, 8, 8, 8, 8, 8, 16, 8, 8, 8, 8, 8, 8, 8, 16, 8,
+        8, 8, 8, 8, 8, 8, 16, 8, 8, 8, 8, 8, 8, 8, 16, 8,
+        8, 8, 8, 8, 8, 8, 16, 8, 8, 8, 8, 8, 8, 8, 16, 8,
+        8, 8, 8, 8, 8, 8, 16, 8, 8, 8, 8, 8, 8, 8, 16, 8,
+        8, 8, 8, 8, 8, 8, 16, 8, 8, 8, 8, 8, 8, 8, 16, 8
+    };
+
+
     CPU::CPU(Bus &bus): bus(bus) { }
 
     inline uint8_t CPU::get_a() { return af.regs.high; }
@@ -472,6 +530,7 @@ namespace emulator {
         if (*cond) {
             auto imm8 = bus.read(pc);
             pc += 1 + static_cast<int8_t>(imm8);
+            took_branch = true;
         }
 
         return {};
@@ -727,6 +786,7 @@ namespace emulator {
                 .transform([this](uint8_t stk) {
                     pc = stk;
                     sp += 2;
+                    took_branch = true;
                 });
         }
 
@@ -763,6 +823,7 @@ namespace emulator {
             return load_word(pc)
                 .transform([this](uint16_t imm16) {
                     pc = imm16;
+                    took_branch = true;
                 });
         }
 
@@ -800,6 +861,7 @@ namespace emulator {
                         .transform([this, imm16]() {
                             sp -= 2;
                             pc = imm16;
+                            took_branch = true;
                         });
                 });
         }
@@ -1078,23 +1140,27 @@ namespace emulator {
             });
     }
 
-    std::expected<void, GameBoyError> CPU::decode_execute(uint8_t opcode)
+    std::expected<uint8_t, GameBoyError> CPU::decode_execute(uint8_t opcode)
     {
-        auto block = opcode >> 6;
-
         if (cb_flag) {
-            return cb_prefix(opcode);
-            cb_flag = false;
+            return cb_prefix(opcode)
+                .transform([this, opcode]() {
+                    cb_flag = false;
+                    return prefixed_cycles[opcode];
+                });
+        } else if (opcode == 0xcb) {
+            cb_flag = true;
+            return 0;
         } else {
-            switch (block) {
-                case 0: return block0(opcode);
-                case 1: return block1(opcode);
-                case 2: return block2(opcode);
-                case 3: return block3(opcode);
-            }
+            return no_prefix(opcode)
+                .transform([opcode]() {
+                    if (took_branch) {
+                        return branch_cycles[opcode];
+                    } else {
+                        return unprefixed_cycles[opcode];
+                    }
+                });
         }
-
-        std::unreachable();
     }
 
     std::expected<void, GameBoyError> CPU::block0(uint8_t opcode) {
@@ -1214,6 +1280,19 @@ namespace emulator {
         }
 
         return std::unexpected(GameBoyError::invalid_instruction);
+    }
+
+    std::expected<void, GameBoyError> CPU::no_prefix(uint8_t opcode) {
+        auto block = opcode >> 6;
+        
+        switch (block) {
+            case 0: return block0(opcode);
+            case 1: return block1(opcode);
+            case 2: return block2(opcode);
+            case 3: return block3(opcode);
+        }
+
+        std::unreachable();
     }
 
     std::expected<void, GameBoyError> CPU::cb_prefix(uint8_t opcode) {
