@@ -1,10 +1,10 @@
 #include "audio.h"
 #include "io_bus.h"
-#include "interrupts.h"
+#include "../interrupts.h"
 #include "joypad.h"
 
 namespace emulator::io {
-    IOBus::IOBus(): audio(Audio()), interrupts(Interrupts()), joypad(Joypad()), lcd(LCD()),
+    IOBus::IOBus(Interrupts &interrupts): audio(Audio()), interrupts(interrupts), joypad(Joypad()), lcd(LCD()),
         timer(Timer()) { }
 
     uint8_t IOBus::read(const uint16_t address) {

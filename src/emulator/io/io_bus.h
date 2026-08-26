@@ -2,7 +2,7 @@
 
 #include "joypad.h"
 #include "timer.h"
-#include "interrupts.h"
+#include "../interrupts.h"
 #include "audio.h"
 #include "lcd.h"
 #include <cstdint>
@@ -11,7 +11,7 @@ namespace emulator::io {
     class IOBus {
         private:
             Audio audio;
-            Interrupts interrupts;
+            Interrupts &interrupts;
             Joypad joypad;
             LCD lcd;
             Timer timer;
@@ -20,7 +20,7 @@ namespace emulator::io {
             uint8_t boot_rom_mapping_control;
             
         public:
-            IOBus();
+            IOBus(Interrupts &interrupts);
 
             uint8_t read(const uint16_t address);
             void write(const uint16_t address, const uint8_t value);

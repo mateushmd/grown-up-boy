@@ -4,6 +4,7 @@
 #include <cstdint>
 #include "cartridge.hpp"
 #include "cartridge.hpp"
+#include "interrupts.h"
 #include "io/io_bus.h"
 
 namespace emulator {
@@ -15,12 +16,12 @@ namespace emulator {
             std::array<uint8_t, 127> hram;
 
             Cartridge &cartridge;
-            io::IOBus &io_dispatcher;
+            io::IOBus io_bus;
 
             uint8_t ie;
 
         public:
-            Bus(Cartridge &cartridge, io::IOBus &io_dispatcher);
+            Bus(Cartridge &cartridge, Interrupts &interrupts);
 
             uint8_t read(uint16_t address);
             void write(uint16_t address, uint8_t value);

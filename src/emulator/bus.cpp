@@ -1,10 +1,11 @@
 #include "bus.h"
 #include "cartridge.hpp"
-#include "io/io_dispatcher.h"
+#include "interrupts.h"
+#include "io/io_bus.h"
 
 namespace emulator {
-    Bus::Bus(Cartridge &cartridge, io::IoDispatcher &io_dispatcher): 
-        cartridge(cartridge), io_dispatcher(io_dispatcher) { }
+    Bus::Bus(Cartridge &cartridge, Interrupts &interrupts): 
+        cartridge(cartridge), io_bus(io::IOBus(interrupts)) { }
 
     uint8_t Bus::read(uint16_t address) {
         if (address < 0x4000) { // ROM bank 0
