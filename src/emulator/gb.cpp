@@ -5,24 +5,16 @@
 #include "cpu.h"
 #include "io/audio.h"
 #include "io/interrupts.h"
-#include "io/io_dispatcher.h"
+#include "io/io_bus.h"
 #include "io/joypad.h"
 #include "io/lcd.h"
 #include "io/timer.h"
 
 namespace emulator {
-    io::Audio audio;
-    io::Interrupts interrupts;
-    io::Joypad joypad;
-    io::LCD lcd;
-    io::Timer timer;
-
-    io::IoDispatcher io_dispatcher(
-        audio, interrupts, joypad, lcd, timer
-    );
+    io::IOBus io_bus;
 
     Cartridge cartridge;
-    Bus bus(cartridge, io_dispatcher);
+    Bus bus(cartridge, io_bus);
     CPU cpu(bus);
 
     std::atomic<bool> is_running; 
