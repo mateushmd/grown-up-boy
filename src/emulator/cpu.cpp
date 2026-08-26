@@ -1153,7 +1153,7 @@ namespace emulator {
             return 0;
         } else {
             return no_prefix(opcode)
-                .transform([opcode]() {
+                .transform([this, opcode]() {
                     if (took_branch) {
                         return branch_cycles[opcode];
                     } else {
