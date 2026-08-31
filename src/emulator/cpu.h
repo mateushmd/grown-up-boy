@@ -4,6 +4,7 @@
 #include <expected>
 #include "defs.h"
 #include "bus.h"
+#include "gb.h"
 
 namespace emulator {
     class CPU {
@@ -123,7 +124,7 @@ namespace emulator {
             std::expected<void, GameBoyError> jp_hl();
             std::expected<void, GameBoyError> call_cond_imm16(uint8_t opcode, Bus &bus, struct EmulatorContext &context);
             std::expected<void, GameBoyError> call_imm16(Bus &bus, struct EmulatorContext &context);
-            std::expected<void, GameBoyError> rst_tgt3();
+            std::expected<void, GameBoyError> rst_tgt3(uint8_t opcode, Bus &bus, struct EmulatorContext &context);
             std::expected<void, GameBoyError> pop_r16stk(uint8_t opcode, Bus &bus, struct EmulatorContext &context);
             std::expected<void, GameBoyError> push_r16stk(uint8_t opcode, Bus &bus, struct EmulatorContext &context);
             std::expected<void, GameBoyError> ldh_c_a(Bus &bus, struct EmulatorContext &context);
@@ -149,9 +150,6 @@ namespace emulator {
             std::expected<void, GameBoyError> res_b3_r8(uint8_t opcode, Bus &bus, struct EmulatorContext &context);
             std::expected<void, GameBoyError> set_b3_r8(uint8_t opcode, Bus &bus, struct EmulatorContext &context);
 
-            std::expected<uint8_t, GameBoyError> decode_execute(
-                uint8_t opcode, Bus &bus, struct EmulatorContext &context
-            );
             std::expected<void, GameBoyError> block0(uint8_t opcode, Bus &bus, struct EmulatorContext &context);
             std::expected<void, GameBoyError> block1(uint8_t opcode, Bus &bus, struct EmulatorContext &context);
             std::expected<void, GameBoyError> block2(uint8_t opcode, Bus &bus, struct EmulatorContext &context);
@@ -159,7 +157,13 @@ namespace emulator {
             std::expected<void, GameBoyError> no_prefix(uint8_t opcode, Bus &bus, struct EmulatorContext &context);
             std::expected<void, GameBoyError> cb_prefix(uint8_t opcode, Bus &bus, struct EmulatorContext &context);
 
+            std::expected<uint64_t, GameBoyError> decode_execute(uint8_t opcode, Bus &bus, struct EmulatorContext &context);
+
+            std::expected<uint64_t, GameBoyError> handle_interrupts(Bus &bus, struct EmulatorContext &context);
+
         public:
             CPU();
+
+            std::expected<uint64_t, GameBoyError> update(Bus &bus, struct EmulatorContext &context);
     };
 }

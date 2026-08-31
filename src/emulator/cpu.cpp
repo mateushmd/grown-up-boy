@@ -1,5 +1,6 @@
 #include <cstdint>
 #include <expected>
+#include <optional>
 #include <utility>
 
 #include "bus.h"
@@ -8,7 +9,7 @@
 #include "gb.h"
 
 namespace emulator {
-    const uint8_t unprefixed_cycles[] = {
+    const uint64_t unprefixed_cycles[] = {
         4, 12, 8, 8, 4, 4, 8, 4, 20, 8, 8, 8, 4, 4, 8, 4,
         4, 12, 8, 8, 4, 4, 8, 4, 12, 8, 8, 8, 4, 4, 8, 4,
         8, 12, 8, 8, 4, 4, 8, 4, 8, 8, 8, 8, 4, 4, 8, 4,
@@ -27,7 +28,7 @@ namespace emulator {
         12, 12, 8, 4, 0, 16, 8, 16, 12, 8, 16, 4, 0, 0, 8, 16
     };
 
-    const uint8_t branch_cycles[] = {
+    const uint64_t branch_cycles[] = {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
         12, 0, 0, 0, 0, 0, 0, 0, 12, 0, 0, 0, 0, 0, 0, 0,
@@ -46,7 +47,7 @@ namespace emulator {
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     };
 
-    const uint8_t prefixed_cycles[] = {
+    const uint64_t prefixed_cycles[] = {
         8, 8, 8, 8, 8, 8, 16, 8, 8, 8, 8, 8, 8, 8, 16, 8,
         8, 8, 8, 8, 8, 8, 16, 8, 8, 8, 8, 8, 8, 8, 16, 8,
         8, 8, 8, 8, 8, 8, 16, 8, 8, 8, 8, 8, 8, 8, 16, 8,
@@ -64,6 +65,13 @@ namespace emulator {
         8, 8, 8, 8, 8, 8, 16, 8, 8, 8, 8, 8, 8, 8, 16, 8,
         8, 8, 8, 8, 8, 8, 16, 8, 8, 8, 8, 8, 8, 8, 16, 8
     };
+
+    const uint16_t handler_addresses[] = {
+        0x40, 0x48, 0x50, 0x58, 0x60
+    };
+
+    bool ime_next;
+    std::optional<uint8_t> next_handler;
 
     CPU::CPU() { }
 
@@ -878,9 +886,13 @@ namespace emulator {
             });
     }
 
-    // TODO: implement
-    std::expected<void, GameBoyError> CPU::rst_tgt3() { 
-        return std::unexpected(GameBoyError::unimplemented);
+    std::expected<void, GameBoyError> CPU::rst_tgt3(uint8_t opcode, Bus &bus, struct EmulatorContext &context) { 
+        auto tgt3 = opcode & 0x38;
+
+        return store_word(sp - 2, pc, bus, context)
+            .transform([this, tgt3](void) {
+                pc = tgt3; 
+            });
     }
 
     std::expected<void, GameBoyError> CPU::pop_r16stk(uint8_t opcode, Bus &bus, struct EmulatorContext &context) { 
@@ -986,7 +998,7 @@ namespace emulator {
     }
 
     std::expected<void, GameBoyError> CPU::ei() { 
-        ime = 1;
+        ime_next = 1;
         return {};
     }
 
@@ -1137,29 +1149,6 @@ namespace emulator {
             });
     }
 
-    std::expected<uint8_t, GameBoyError> CPU::decode_execute(uint8_t opcode, Bus &bus, struct EmulatorContext &context)
-    {
-        if (cb_flag) {
-            return cb_prefix(opcode, bus, context)
-                .transform([this, opcode]() {
-                    cb_flag = false;
-                    return prefixed_cycles[opcode];
-                });
-        } else if (opcode == 0xcb) {
-            cb_flag = true;
-            return 0;
-        } else {
-            return no_prefix(opcode, bus, context)
-                .transform([this, opcode]() {
-                    if (took_branch) {
-                        return branch_cycles[opcode];
-                    } else {
-                        return unprefixed_cycles[opcode];
-                    }
-                });
-        }
-    }
-
     std::expected<void, GameBoyError> CPU::block0(uint8_t opcode, Bus &bus, struct EmulatorContext &context) {
         auto x = opcode & 0b111;
         bool y = (opcode >> 3) & 1;
@@ -1271,7 +1260,7 @@ namespace emulator {
             case 0b000: return ret_cond(opcode, bus, context);
             case 0b010: return jp_cond_imm16(opcode, bus, context);
             case 0b100: return call_cond_imm16(opcode, bus, context);
-            case 0b111: return rst_tgt3();
+            case 0b111: return rst_tgt3(opcode, bus, context);
             case 0b001: return pop_r16stk(opcode, bus, context);
             case 0b101: return push_r16stk(opcode, bus, context);
         }
@@ -1315,5 +1304,84 @@ namespace emulator {
         }
 
         std::unreachable();
+    }
+
+    std::expected<uint64_t, GameBoyError> CPU::decode_execute(uint8_t opcode, Bus &bus, struct EmulatorContext &context) {
+        if (cb_flag) {
+            return cb_prefix(opcode, bus, context)
+                .transform([this, opcode]() {
+                    cb_flag = false;
+                    return prefixed_cycles[opcode];
+                });
+        } else if (opcode == 0xcb) {
+            cb_flag = true;
+            return 0;
+        } else {
+            return no_prefix(opcode, bus, context)
+                .transform([this, opcode]() {
+                    if (took_branch) {
+                        return branch_cycles[opcode];
+                    } else {
+                        return unprefixed_cycles[opcode];
+                    }
+                });
+        }
+    }
+
+    std::expected<uint64_t, GameBoyError> CPU::handle_interrupts(Bus &bus, struct EmulatorContext &context) {
+        if (!ime) {
+            return 0;
+        }
+
+        for (int i = 0; i < 4; i++) {
+            uint8_t handler_flag = 1 << i;
+            bool requested = context.if_register & handler_flag;
+            bool enabled = context.ie & handler_flag;
+            if (requested && enabled) {
+                ime = 0;
+
+                context.if_register &= ~handler_flag;
+
+                // TODO: verify if the current pc is the one that should go to the stack
+                auto result = store_word(sp - 2, pc, bus, context);
+
+                if (!result) {
+                    return std::unexpected(result.error());
+                }
+
+                sp -= 2;
+
+                pc = handler_addresses[i]; 
+
+                // Pandocs says interrupt handling lasts 5 M-cycles
+                return 20;
+            }
+        }
+
+        return 0;
+    }
+
+    std::expected<uint64_t, GameBoyError> CPU::update(Bus &bus, struct EmulatorContext &context) {
+        auto opcode = bus.read(pc, context);
+        pc++; 
+        
+        auto result = decode_execute(opcode, bus, context);
+
+        if (!result) {
+            return std::unexpected(result.error());
+        }
+        
+        ime = ime_next;
+        ime_next = 0;
+        
+        auto cycles = *result;
+        
+        result = handle_interrupts(bus, context);
+
+        if (!result) {
+            return std::unexpected(result.error());
+        }
+
+        return cycles + *result;
     }
 }
