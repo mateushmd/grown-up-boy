@@ -3,7 +3,7 @@
 #include <array>
 #include <cstdint>
 
-namespace emulator::io {
+namespace emulator {
     class Audio {
         private:
             struct Channel {

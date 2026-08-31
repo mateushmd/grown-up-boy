@@ -2,7 +2,7 @@
 
 #include "audio.h"
 
-namespace emulator::io {
+namespace emulator {
     uint8_t Audio::read(const uint16_t address) const {
         TODO();
     }

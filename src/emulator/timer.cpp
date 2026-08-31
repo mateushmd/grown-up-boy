@@ -2,7 +2,7 @@
 #include <cstdint>
 #include <utility>
 
-namespace emulator::io {
+namespace emulator {
     uint8_t Timer::read(uint8_t address) const {
         switch (address) {
             case 0: return (counter & 0xFF00) >> 8;

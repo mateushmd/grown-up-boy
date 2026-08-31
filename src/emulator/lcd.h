@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace emulator::io {
+namespace emulator {
     class LCD {
         private:
             uint8_t lcdc; 

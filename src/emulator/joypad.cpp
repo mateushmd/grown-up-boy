@@ -1,7 +1,7 @@
 #include "joypad.h"
 #include <cstdint>
 
-namespace emulator::io {
+namespace emulator {
     void Joypad::update() {
         auto selection = (joyp & 0x30) >> 4;
 
