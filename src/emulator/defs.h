@@ -5,6 +5,7 @@
 namespace emulator {
     union RegisterPair {
         uint16_t pair; 
+        // TODO: does it work in any endianess?
         struct {
             uint8_t low;
             uint8_t high;
