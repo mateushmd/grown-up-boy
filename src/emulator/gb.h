@@ -21,6 +21,7 @@ namespace emulator {
         io::LCD &lcd;
         io::Timer &timer;
         uint8_t &ie;
+        uint8_t &if_register;
     };
 
     void start();
