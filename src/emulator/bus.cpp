@@ -6,27 +6,27 @@ namespace emulator {
 
     uint8_t read_io(uint16_t address, struct EmulatorContext &context) {
         if (address == 0xff00) {
-            //joypad
+            return context.joypad.read();
         } else if (address <= 0xff02) {
-            //serial transfer
+            TODO("serial transfer");
         } else if (address == 0xff03) {
             TODO("unknown");
         } else if (address <= 0xff07) {
-            //timer and divider
+            return context.timer.read(address - 0xff04);
         } else if (address <= 0xff0e) {
             TODO("unknown");
         } else if (address == 0xff0f) {
-            //interrupts
+            return context.if_register;
         } else if (address <= 0xff26) {
-            //audio
+            return context.audio.read(address - 0xff10);
         } else if (address <= 0xff29) {
             TODO("unknown");
         } else if (address <= 0xff3f) {
-            //wave pattern
+            return context.audio.read(address - 0xff30);
         } else if (address <= 0xff45) {
             //lcd 
         } else if (address == 0xff46) {
-            //oam dma transfer
+            return context.oam_dma_transfer;
         } else if (address <= 0xff4b) {
             //lcd
         }  else if (address == 0xff51) {
@@ -38,27 +38,27 @@ namespace emulator {
 
     void write_io(uint16_t address, uint8_t value, struct EmulatorContext &context){
         if (address == 0xff00) {
-            //joypad
+            context.joypad.write(value);
         } else if (address <= 0xff02) {
-            //serial transfer
+            TODO("serial transfer");
         } else if (address == 0xff03) {
             TODO("unknown");
         } else if (address <= 0xff07) {
-            //timer and divider
+            context.timer.write(address - 0xff04, value);
         } else if (address <= 0xff0e) {
             TODO("unknown");
         } else if (address == 0xff0f) {
-            //interrupts
+            context.if_register = value;
         } else if (address <= 0xff26) {
-            //audio
+            context.audio.write(address - 0xff30, value);
         } else if (address <= 0xff29) {
             TODO("unknown");
         } else if (address <= 0xff3f) {
-            //wave pattern
+            context.audio.write(address - 0xff30, value);
         } else if (address <= 0xff45) {
             //lcd 
         } else if (address == 0xff46) {
-            //oam dma transfer
+            context.oam_dma_transfer = value;
         } else if (address <= 0xff4b) {
             //lcd
         }  else if (address == 0xff51) {

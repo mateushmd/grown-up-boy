@@ -22,6 +22,7 @@ namespace emulator {
         Timer &timer;
         uint8_t &ie;
         uint8_t &if_register;
+        uint8_t &oam_dma_transfer;
     };
 
     void start();
