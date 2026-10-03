@@ -2,7 +2,7 @@
 #include "bus.h"
 #include "gb.h"
 
-namespace emulator {
+namespace core {
     Bus::Bus() { }
 
     uint8_t read_io(uint16_t address, struct EmulatorContext &context) {

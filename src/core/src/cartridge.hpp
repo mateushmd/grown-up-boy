@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <vector>
 
-namespace emulator {
+namespace core {
     class Cartridge {
         private:
             std::vector<uint8_t> rom;

@@ -4,6 +4,7 @@ add_library(gub_core STATIC
     src/cartridge.cpp
     src/cpu.cpp
     src/gb.cpp
+    src/joypad.cpp
     src/lcd.cpp
     src/sync.cpp
     src/timer.cpp

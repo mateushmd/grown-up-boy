@@ -8,7 +8,7 @@
 #include "defs.h"
 #include "gb.h"
 
-namespace emulator {
+namespace core {
     const uint64_t unprefixed_cycles[] = {
         4, 12, 8, 8, 4, 4, 8, 4, 20, 8, 8, 8, 4, 4, 8, 4,
         4, 12, 8, 8, 4, 4, 8, 4, 12, 8, 8, 8, 4, 4, 8, 4,

@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace emulator {
+namespace core {
     union RegisterPair {
         uint16_t pair; 
         // TODO: does it work in any endianess?

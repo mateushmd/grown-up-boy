@@ -3,7 +3,7 @@
 #include "common/macros.h"
 #include "audio.h"
 
-namespace emulator {
+namespace core {
     uint8_t Audio::read(const uint16_t address) const {
         TODO();
     }

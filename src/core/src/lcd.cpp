@@ -2,7 +2,7 @@
 
 #include "lcd.h"
 
-namespace emulator {
+namespace core {
     uint8_t LCD::read(const uint16_t address) const {
         TODO();
     }

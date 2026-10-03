@@ -4,7 +4,7 @@
 
 #include "gb.h"
 
-namespace emulator {
+namespace core {
     class Bus {
         public:
             Bus();

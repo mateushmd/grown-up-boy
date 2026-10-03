@@ -3,7 +3,7 @@
 
 #include "sync.h"
 
-namespace emulator {
+namespace core {
     using Module = Synchronizer::Module;
 
     Synchronizer::Synchronizer(): earliest_event(INT32_MAX) {

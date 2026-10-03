@@ -10,7 +10,7 @@
 #include "lcd.h"
 #include "timer.h"
 
-namespace emulator {
+namespace core {
     Cartridge cartridge;
     std::array<uint8_t, 1024 * 8> vram;
     std::array<uint8_t, 1024 * 8> wram;

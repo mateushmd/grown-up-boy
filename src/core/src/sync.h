@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <utility>
 
-namespace emulator {
+namespace core {
     class Synchronizer {
         public:
             enum class Module: size_t {

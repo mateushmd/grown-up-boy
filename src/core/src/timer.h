@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-namespace emulator {
+namespace core {
     class Timer {
         private:
             uint16_t counter;

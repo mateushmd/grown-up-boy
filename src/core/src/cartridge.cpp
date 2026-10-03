@@ -2,7 +2,7 @@
 #include "cartridge.hpp"
 #include <cstdint>
 
-namespace emulator {
+namespace core {
     uint8_t Cartridge::read_rom(uint16_t address) const {
         TODO();
     }

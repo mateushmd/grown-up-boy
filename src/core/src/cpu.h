@@ -6,7 +6,7 @@
 #include "bus.h"
 #include "gb.h"
 
-namespace emulator {
+namespace core {
     class CPU {
         private:
             union RegisterPair af;
