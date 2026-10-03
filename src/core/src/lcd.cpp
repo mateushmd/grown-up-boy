@@ -1,5 +1,6 @@
 #include <cstdint>
 
+#include "common/macros.h"
 #include "lcd.h"
 
 namespace core {

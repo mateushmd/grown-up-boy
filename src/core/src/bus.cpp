@@ -7,7 +7,7 @@ namespace core {
 
     uint8_t read_io(uint16_t address, struct EmulatorContext &context) {
         if (address == 0xff00) {
-            return context.joyp;
+            return context.joyp.read();
         } else if (address <= 0xff02) {
             TODO("serial transfer");
         } else if (address == 0xff03) {
@@ -39,7 +39,7 @@ namespace core {
 
     void write_io(uint16_t address, uint8_t value, struct EmulatorContext &context){
         if (address == 0xff00) {
-            context.joyp = value;
+            context.joyp.write(value);
         } else if (address <= 0xff02) {
             TODO("serial transfer");
         } else if (address == 0xff03) {

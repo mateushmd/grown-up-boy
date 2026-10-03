@@ -22,6 +22,7 @@ namespace core {
     Timer timer;
     uint8_t ie;
     uint8_t if_register;
+    uint8_t oam_dma_transfer;
     
     struct EmulatorContext context {
         cartridge,
@@ -34,7 +35,8 @@ namespace core {
         lcd,
         timer,
         ie,
-        if_register
+        if_register,
+        oam_dma_transfer
     };
 
     Bus bus();
