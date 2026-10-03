@@ -1,0 +1,2 @@
+add_library(gub_common INTERFACE)
+target_include_directories(gub_common INTERFACE include)
