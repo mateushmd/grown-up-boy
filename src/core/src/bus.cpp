@@ -1,3 +1,4 @@
+#include "common/macros.h"
 #include "bus.h"
 #include "gb.h"
 

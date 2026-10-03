@@ -1,3 +1,4 @@
+#include "common/macros.h"
 #include "cartridge.hpp"
 #include <cstdint>
 
