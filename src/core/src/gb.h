@@ -5,6 +5,7 @@
 
 #include "cartridge.hpp"
 #include "audio.h"
+#include "joypad.h"
 #include "lcd.h"
 #include "timer.h"
 
@@ -16,7 +17,7 @@ namespace core {
         std::array<uint8_t, 160> &oam;
         std::array<uint8_t, 127> &hram;
         Audio &audio;
-        uint8_t &joyp;
+        Joypad &joyp;
         LCD &lcd;
         Timer &timer;
         uint8_t &ie;
