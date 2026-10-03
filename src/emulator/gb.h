@@ -5,7 +5,6 @@
 
 #include "cartridge.hpp"
 #include "audio.h"
-#include "joypad.h"
 #include "lcd.h"
 #include "timer.h"
 
@@ -17,7 +16,7 @@ namespace emulator {
         std::array<uint8_t, 160> &oam;
         std::array<uint8_t, 127> &hram;
         Audio &audio;
-        Joypad &joypad;
+        uint8_t &joyp;
         LCD &lcd;
         Timer &timer;
         uint8_t &ie;

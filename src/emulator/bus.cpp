@@ -6,7 +6,7 @@ namespace emulator {
 
     uint8_t read_io(uint16_t address, struct EmulatorContext &context) {
         if (address == 0xff00) {
-            return context.joypad.read();
+            return context.joyp;
         } else if (address <= 0xff02) {
             TODO("serial transfer");
         } else if (address == 0xff03) {
@@ -38,7 +38,7 @@ namespace emulator {
 
     void write_io(uint16_t address, uint8_t value, struct EmulatorContext &context){
         if (address == 0xff00) {
-            context.joypad.write(value);
+            context.joyp = value;
         } else if (address <= 0xff02) {
             TODO("serial transfer");
         } else if (address == 0xff03) {
